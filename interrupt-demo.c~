@@ -18,7 +18,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/delay.h>
 /* Local header files */
-#include "interrupt-demo.h"
+#include "interrput-demo.h"
 
 static int interrupt_demo_init(void){
 	printk(KERN_INFO "InterruptDemo: Initializing...");
@@ -26,7 +26,7 @@ static int interrupt_demo_init(void){
 }
 
 static void interrupt_demo_exit(void){
-	printk(KERN_INFO "InterruptDemo: Exiting...");
+	printk(KERN_INFO "InterrputDemo: Exiting...");
 	return;
 }
 
