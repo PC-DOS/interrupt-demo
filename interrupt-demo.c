@@ -39,20 +39,27 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
     return 0;
 }
 
-ssize_t interrupt_demo_read(struct file * lpFile,char __user * lpszBuffer,size_t iSize,loff_t * lpOffset){
+ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
     printk(KERN_INFO "InterruptDemo: Reading data from device file...\n");
     return 0;
 }
 
-ssize_t interrupt_demo_write(struct file * lpFile,const char __user * lpszBuffer,size_t iSize,loff_t * lpOffset){
+ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
     printk(KERN_INFO "InterruptDemo: Wrtiting data to device file...\n");
     return 0;
 }
  
-static long interrupt_demo_unlocked_ioctl(struct file *file,unsigned int iIoControlCommand,unsigned long lpIoControlParameters){  
+static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
     printk(KERN_INFO "InterruptDemo: Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
     return 0;
 }
+
+/* For kernels before 2.6.36
+static int interrupt_demo_unlocked_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
+    printk(KERN_INFO "InterruptDemo: IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+    return 0;
+}
+*/
  
 static struct file_operations interrupt_demo_driver_file_operations = {
     .owner = THIS_MODULE,
@@ -61,6 +68,7 @@ static struct file_operations interrupt_demo_driver_file_operations = {
     .read  = interrupt_demo_read, //Read operations, executed when calling read()
     .write = interrupt_demo_write, //Write operations, executed when calling write()
     .unlocked_ioctl = interrupt_demo_unlocked_ioctl, //Unlocked IOControl, executed when calling ioctl()
+    //.ioctl = interrupt_demo_ioctl, //For kernels before 2.6.36, use .ioctl and comment .unlocked_ioctl
 };
 
 /* Platform Device related functions */
