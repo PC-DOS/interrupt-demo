@@ -5,6 +5,8 @@
 #define NODE_NAME "interrupt-demo"
 #define CLASS_NAME "interrupt-demo-class"
 
+#define DATA_BUFFER_SIZE 1024
+
 #define IS_IN_DEBUG
 #ifdef IS_IN_DEBUG
 #define DBGPRINT(sInfo...) printk(KERN_DEBUG "InterruptDemo - Debug:" sInfo)

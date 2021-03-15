@@ -19,6 +19,7 @@
 #include <linux/delay.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
+#include <linux/uaccess.h>
 /* Interrupt-related header files */
 #include <linux/interrupt.h>
 #include <linux/irq.h>
@@ -28,6 +29,8 @@
 struct class *clsDriver; //Device node 
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
 static struct cdev cdevDriver; //cdev structure
+
+int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
     printk(KERN_INFO "InterruptDemo: Device file opending...\n");
@@ -41,7 +44,13 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
 
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
     printk(KERN_INFO "InterruptDemo: Reading data from device file...\n");
-    return 0;
+    //Sample code
+    int i;
+    for (i=0; i<DATA_BUFFER_SIZE; ++i){
+        arrDataBuffer[i]=245;
+    }
+    copy_to_user(lpszBuffer, &arrDataBuffer, sizeof(arrDataBuffer));
+    return sizeof(arrDataBuffer);
 }
 
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
