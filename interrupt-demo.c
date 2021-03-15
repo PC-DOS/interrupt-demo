@@ -25,9 +25,9 @@
 /* Local header files */
 #include "interrupt-demo.h"
 
-struct class *interrupt_demo_class; //Device node 
+struct class *clsDriver; //Device node 
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
-static struct cdev interrupt_demo_cdev; //cdev structure
+static struct cdev cdevDriver; //cdev structure
 
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
     printk(KERN_INFO "InterruptDemo: Device file opending...\n");
@@ -129,25 +129,25 @@ static int __init interrupt_demo_init(void){
         printk(KERN_WARNING "InterruptDemo: alloc_chrdev_region() failed.\n");
         return iResult;
     }
-    interrupt_demo_setup_cdev(&interrupt_demo_cdev, 0, &interrupt_demo_driver_file_operations);
+    interrupt_demo_setup_cdev(&cdevDriver, 0, &interrupt_demo_driver_file_operations);
     printk(KERN_INFO "InterruptDemo: The major device number of this device is %d.\n", iMajorDeviceNumber);
     //Use request_irq() to register interrupts here
 	
     //Create device node
-    interrupt_demo_class = class_create(THIS_MODULE, CLASS_NAME);
-    if (IS_ERR(interrupt_demo_class)){
+    clsDriver = class_create(THIS_MODULE, CLASS_NAME);
+    if (IS_ERR(clsDriver)){
         printk(KERN_INFO "InterruptDemo: failed in creating device class.\n");
         return 0;
     }
-    device_create(interrupt_demo_class, NULL, dev, NULL, NODE_NAME);
+    device_create(clsDriver, NULL, dev, NULL, NODE_NAME);
 	return 0;
 }
 
 static void __exit interrupt_demo_exit(void){
     printk(KERN_INFO "InterruptDemo: Exiting...\n");
-    device_destroy(interrupt_demo_class,MKDEV(iMajorDeviceNumber, 0));
-    class_destroy(interrupt_demo_class);
-    cdev_del(&interrupt_demo_cdev);
+    device_destroy(clsDriver,MKDEV(iMajorDeviceNumber, 0));
+    class_destroy(clsDriver);
+    cdev_del(&cdevDriver);
     unregister_chrdev_region(MKDEV(iMajorDeviceNumber, 0), 1);
     //Use free_irq() to unregister interrupts here
 	
