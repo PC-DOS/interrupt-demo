@@ -26,7 +26,7 @@
 #include "interrupt-demo.h"
 
 struct class *interrupt_demo_class; //Device node 
-static int iMajorDeviceNumber = 0; //Allocate device number automatically
+static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
 static struct cdev interrupt_demo_cdev; //cdev structure
 
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
