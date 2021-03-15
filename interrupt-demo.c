@@ -6,7 +6,7 @@
 /* Main header files */
 #include <linux/init.h>
 #include <linux/module.h>
-/* Samsung header files */
+/* Useful header files */
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <mach/gpio.h>
@@ -17,15 +17,18 @@
 #include <asm/io.h>
 #include <linux/regulator/consumer.h>
 #include <linux/delay.h>
+/* Interrupt-related header files */
+#include <linux/interrupt.h>
+#include <linux/irq.h>
 /* Local header files */
 #include "interrupt-demo.h"
 
-static int interrupt_demo_init(void){
+static int __init interrupt_demo_init(void){
 	printk(KERN_INFO "InterruptDemo: Initializing...");
 	return 0;
 }
 
-static void interrupt_demo_exit(void){
+static void __exit interrupt_demo_exit(void){
 	printk(KERN_INFO "InterruptDemo: Exiting...");
 	return;
 }
