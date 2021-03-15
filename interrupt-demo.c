@@ -98,7 +98,7 @@ static int interrupt_demo_resume(struct platform_device * lpPlatformDevice){
 }
 
 /* Init & Exit functions */
-static void interrupt_demo_setup_cdev(struct cdev * lpCharDevice, int iMinorDeviceNumber, struct file_operations * lpFileOperations){ //Device setup functions, called by init()
+static void interrupt_demo_setup_cdev(struct cdev * lpCharDevice, int iMinorDeviceNumber, struct file_operations * lpFileOperations){ //Device setup function, called by init()
     int iError, iDeviceDeviceNumber = MKDEV(iMajorDeviceNumber, iMinorDeviceNumber);
     cdev_init(lpCharDevice, lpFileOperations); //Initialize cdev
     lpCharDevice->owner = THIS_MODULE;
