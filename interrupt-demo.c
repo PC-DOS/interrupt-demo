@@ -5,11 +5,12 @@
  * We use the following Interrupts:
  * || Private Definition || Pin Definition || INT ID (XEINT) ||
  * || PW_INT             || GM_INT2        || XEINT25        ||
- * || DAC_INT / KEY_SLEEP|| GYRO_INT       || XEINT27        ||
+ * || DAC_INT            || COMPASS_RDY    || XEINT28        ||
  * || S_INT              || XEINT1_BAK     || XEINT1         ||
  * || DP_INT             || XEINT20_BAK    || XEINT20        ||
  * || KEY_HOME           || UART_RING      || XEINT9         ||
  * || KEY_BACK           || SIM_DET        || XEINT10        ||
+ * || KEY_SLEEP          || GYRO_INT       || XEINT27        ||
  * || KEY_VOL+           || KP_ROW1        || XEINT17        ||
  * || KEY_VOL-           || KP_ROW0        || XEINT16        ||
  *
