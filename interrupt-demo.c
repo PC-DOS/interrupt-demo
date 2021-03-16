@@ -13,6 +13,7 @@
  * || KEY_SLEEP          || GYRO_INT       || XEINT27        ||
  * || KEY_VOL+           || KP_ROW1        || XEINT17        ||
  * || KEY_VOL-           || KP_ROW0        || XEINT16        ||
+ * KEY_**** are only used in INTERRUPT_DEBUG mode
  *
  */
 
