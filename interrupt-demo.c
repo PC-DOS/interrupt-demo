@@ -1,6 +1,14 @@
 /* Interrupt Demo Driver
  *
  * This is a character driver, which is used to demostrate Exynos-4412's interrupts
+ * 
+ * We use the following Interrupts:
+ * || Private Definition || Pin Definition || INT ID (XEINT) ||
+ * || PW_INT             || GM_INT2        || XEINT25        ||
+ * || DAC_INT            || GYRO_INT       || XEINT27        ||
+ * || S_INT              || XEINT1_BAK     || XEINT1         ||
+ * || DP_INT             || XEINT20_BAK    || XEINT20        ||
+ *
  */
 
 /* Main header files */
@@ -49,7 +57,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
     for (i=0; i<DATA_BUFFER_SIZE; ++i){
         arrDataBuffer[i]=245;
     }
-    copy_to_user(lpszBuffer, &arrDataBuffer, sizeof(arrDataBuffer));
+    copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
     return sizeof(arrDataBuffer);
 }
 
