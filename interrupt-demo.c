@@ -47,17 +47,17 @@ static struct cdev cdevDriver; //cdev structure
 int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
-    printk(KERN_INFO "InterruptDemo: Device file opending...\n");
+    DBGPRINT("Device file opending...\n");
     return 0;
 }
 
 static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
-    printk(KERN_INFO "InterruptDemo: Device file closing...\n");
+    DBGPRINT("Device file closing...\n");
     return 0;
 }
 
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
-    printk(KERN_INFO "InterruptDemo: Reading data from device file...\n");
+    DBGPRINT("Reading data from device file...\n");
     //Sample code
     int i;
     for (i=0; i<DATA_BUFFER_SIZE; ++i){
@@ -68,18 +68,18 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 }
 
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
-    printk(KERN_INFO "InterruptDemo: Wrtiting data to device file...\n");
+    DBGPRINT("Wrtiting data to device file...\n");
     return 0;
 }
  
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
-    printk(KERN_INFO "InterruptDemo: Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+    DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
     return 0;
 }
 
 /* For kernels before 2.6.36
 static int interrupt_demo_unlocked_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
-    printk(KERN_INFO "InterruptDemo: IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+    DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
     return 0;
 }
 */
@@ -96,27 +96,27 @@ static struct file_operations interrupt_demo_driver_file_operations = {
 
 /* Platform Device related functions */
 static int interrupt_demo_probe(struct platform_device * lpPlatformDevice){
-	printk(KERN_INFO "InterruptDemo: Initializing...\n");
+	DBGPRINT("Initializing...\n");
 	return 0;
 }
 
 static int interrupt_demo_remove(struct platform_device * lpPlatformDevice){
-	printk(KERN_INFO "InterruptDemo: Removing...\n");
+	DBGPRINT("Removing...\n");
 	return 0;
 }
 
 void interrupt_demo_shutdown(struct platform_device * lpPlatformDevice){
-	printk(KERN_INFO "InterruptDemo: Shutting down...\n");
+	DBGPRINT("Shutting down...\n");
 	return;
 }
 
 static int interrupt_demo_suspend(struct platform_device * lpPlatformDevice, pm_message_t iState){
-	printk(KERN_INFO "InterruptDemo: Suspending...\n");
+	DBGPRINT("Suspending...\n");
 	return 0;
 }
 
 static int interrupt_demo_resume(struct platform_device * lpPlatformDevice){
-	printk(KERN_INFO "InterruptDemo: Resuming...\n");
+	DBGPRINT("Resuming...\n");
 	return 0;
 }
 
@@ -128,38 +128,38 @@ static void interrupt_demo_setup_cdev(struct cdev * lpCharDevice, int iMinorDevi
     lpCharDevice->ops = lpFileOperations;
     iError = cdev_add(lpCharDevice, iDeviceDeviceNumber, 1);
     if(iError){
-        printk(KERN_NOTICE "InterruptDemo: Error %d adding device  %d.\n", iError, iMinorDeviceNumber);
+        WRNPRINT("Error %d adding device  %d.\n", iError, iMinorDeviceNumber);
     }
-    printk("InterruptDemo: Device setup process finished.\n");
+    DBGPRINT("Device setup process finished.\n");
 }
 
 static int __init interrupt_demo_init(void){
-    printk(KERN_INFO "InterruptDemo: Initializing...\n");
+    DBGPRINT("Initializing...\n");
     int iResult;
     dev_t dev = MKDEV(iMajorDeviceNumber, 0);
     if(iMajorDeviceNumber){
         //Static device number
         iResult = register_chrdev_region(dev, 1, DRIVER_NAME);
-        printk(KERN_INFO "InterruptDemo: register_chrdev_region().\n");
+        DBGPRINT("register_chrdev_region().\n");
     }
     else{
         //Allocate device number
         iResult = alloc_chrdev_region(&dev, 0, 1, DRIVER_NAME);
-        printk(KERN_INFO "InterruptDemo: alloc_chrdev_region().\n");
+        DBGPRINT("alloc_chrdev_region().\n");
         iMajorDeviceNumber = MAJOR(dev);
     }
     if(iResult < 0){ //Errors occurred
-        printk(KERN_WARNING "InterruptDemo: alloc_chrdev_region() failed.\n");
+        WRNPRINT("alloc_chrdev_region() failed.\n");
         return iResult;
     }
     interrupt_demo_setup_cdev(&cdevDriver, 0, &interrupt_demo_driver_file_operations);
-    printk(KERN_INFO "InterruptDemo: The major device number of this device is %d.\n", iMajorDeviceNumber);
+    DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
     //Use request_irq() to register interrupts here
 	
     //Create device node
     clsDriver = class_create(THIS_MODULE, CLASS_NAME);
     if (IS_ERR(clsDriver)){
-        printk(KERN_INFO "InterruptDemo: failed in creating device class.\n");
+        DBGPRINT("failed in creating device class.\n");
         return 0;
     }
     device_create(clsDriver, NULL, dev, NULL, NODE_NAME);
@@ -167,7 +167,7 @@ static int __init interrupt_demo_init(void){
 }
 
 static void __exit interrupt_demo_exit(void){
-    printk(KERN_INFO "InterruptDemo: Exiting...\n");
+    DBGPRINT("Exiting...\n");
     device_destroy(clsDriver,MKDEV(iMajorDeviceNumber, 0));
     class_destroy(clsDriver);
     cdev_del(&cdevDriver);
