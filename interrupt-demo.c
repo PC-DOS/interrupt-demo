@@ -3,16 +3,16 @@
  * This is a character driver, which is used to demostrate Exynos-4412's interrupts
  * 
  * We use the following Interrupts:
- * || Private Definition || Pin Definition || INT ID (XEINT) ||
- * || PW_INT             || GM_INT2        || XEINT25        ||
- * || DAC_INT            || COMPASS_RDY    || XEINT28        ||
- * || S_INT              || XEINT1_BAK     || XEINT1         ||
- * || DP_INT             || XEINT20_BAK    || XEINT20        ||
- * || KEY_HOME           || UART_RING      || XEINT9         ||
- * || KEY_BACK           || SIM_DET        || XEINT10        ||
- * || KEY_SLEEP          || GYRO_INT       || XEINT27        ||
- * || KEY_VOL+           || KP_ROW1        || XEINT17        ||
- * || KEY_VOL-           || KP_ROW0        || XEINT16        ||
+ * || Private Definition || Pin Definition || INT ID (XEINT) || Label           ||
+ * || PW_INT             || GM_INT2        || XEINT25        || EXYNOS4_GPX3(1) ||
+ * || DAC_INT            || COMPASS_RDY    || XEINT28        || EXYNOS4_GPX3(4) ||
+ * || S_INT              || XEINT1_BAK     || XEINT1         || EXYNOS4_GPX0(1) ||
+ * || DP_INT             || XEINT20_BAK    || XEINT20        || EXYNOS4_GPX2(4) ||
+ * || KEY_HOME           || UART_RING      || XEINT9         || EXYNOS4_GPX1(1) ||
+ * || KEY_BACK           || SIM_DET        || XEINT10        || EXYNOS4_GPX1(2) ||
+ * || KEY_SLEEP          || GYRO_INT       || XEINT27        || EXYNOS4_GPX3(3) ||
+ * || KEY_VOL+           || KP_ROW1        || XEINT17        || EXYNOS4_GPX2(1) ||
+ * || KEY_VOL-           || KP_ROW0        || XEINT16        || EXYNOS4_GPX2(0) ||
  * KEY_**** are only used in INTERRUPT_DEBUG mode
  *
  */
@@ -46,6 +46,7 @@ static struct cdev cdevDriver; //cdev structure
 
 int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 
+/* Character Driver related functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
     DBGPRINT("Device file opending...\n");
     return 0;
@@ -97,6 +98,53 @@ static struct file_operations interrupt_demo_driver_file_operations = {
     .unlocked_ioctl = interrupt_demo_unlocked_ioctl, //Unlocked IOControl, executed when calling ioctl()
     //.ioctl = interrupt_demo_ioctl, //For kernels before 2.6.36, use .ioctl and comment .unlocked_ioctl
 };
+
+/* Interrupt Handlers */
+//Interrupt handler of PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
+static irqreturn_t eint25_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
+static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
+static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of DP_INT/XEINT20_BAK, Interrupt ID XEINT20, Label EXYNOS4_GPX2(4)
+static irqreturn_t eint20_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of KEY_HOME/UART_RING, Interrupt ID XEINT9, Label EXYNOS4_GPX1(1)
+static irqreturn_t eint9_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of KEY_BACK/SIM_DET, Interrupt ID XEINT10, Label EXYNOS4_GPX1(2)
+static irqreturn_t eint10_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of KEY_SLEEP/GYRO_INT, Interrupt ID XEINT27, Label EXYNOS4_GPX3(3)
+static irqreturn_t eint27_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of KEY_VOL+/KP_ROW1, Interrupt ID XEINT17, Label EXYNOS4_GPX2(1)
+static irqreturn_t eint17_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of KEY_VOL-/KP_ROW0, Interrupt ID XEINT16, Label EXYNOS4_GPX2(0)
+static irqreturn_t eint16_interrupt(int iIrq, void * lpDevId){
+	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
 
 /* Platform Device related functions */
 static int interrupt_demo_probe(struct platform_device * lpPlatformDevice){
@@ -159,7 +207,30 @@ static int __init interrupt_demo_init(void){
     interrupt_demo_setup_cdev(&cdevDriver, 0, &interrupt_demo_driver_file_operations);
     DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
     //Use request_irq() to register interrupts here
-	
+	int iResult;
+	//Request interrupt PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
+	iResult=gpio_request(EXYNOS4_GPX3(1), XEINT25_NAME);
+	if (0==iResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX3(1), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX3(1), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX3(1));
+		
+		iReuslt=request_irq(IRQ_EINT(25), eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, interrupt_demo_driver);
+		if (iResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(25), iResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(1), iResult);
+	}
+	//Request interrupt DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
+	//Request interrupt S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
+	//Request interrupt DP_INT/XEINT20_BAK, Interrupt ID XEINT20, Label EXYNOS4_GPX2(4)
+	//Request interrupt KEY_HOME/UART_RING, Interrupt ID XEINT9, Label EXYNOS4_GPX1(1)
+	//Request interrupt KEY_BACK/SIM_DET, Interrupt ID XEINT10, Label EXYNOS4_GPX1(2)
+	//Request interrupt KEY_SLEEP/GYRO_INT, Interrupt ID XEINT27, Label EXYNOS4_GPX3(3)
+	//Request interrupt KEY_VOL+/KP_ROW1, Interrupt ID XEINT17, Label EXYNOS4_GPX2(1)
+	//Request interrupt KEY_VOL-/KP_ROW0, Interrupt ID XEINT16, Label EXYNOS4_GPX2(0)
     //Create device node
     clsDriver = class_create(THIS_MODULE, CLASS_NAME);
     if (IS_ERR(clsDriver)){
