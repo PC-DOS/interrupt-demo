@@ -63,8 +63,12 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
     for (i=0; i<DATA_BUFFER_SIZE; ++i){
         arrDataBuffer[i]=245;
     }
-    copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
-    return sizeof(arrDataBuffer);
+	ssize_t iResult;
+    iResult=copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
+	if (iResult){
+		WRNPRINT("Failed to copy %l Bytes of data to user RAM space.\n", iResult);
+	}
+    return iResult;
 }
 
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
