@@ -130,11 +130,11 @@ static void interrupt_demo_setup_cdev(struct cdev * lpCharDevice, int iMinorDevi
     if(iError){
         WRNPRINT("Error %d adding device  %d.\n", iError, iMinorDeviceNumber);
     }
-    DBGPRINT("Device setup process finished.\n");
+    NFOPRINT("Device setup process finished.\n");
 }
 
 static int __init interrupt_demo_init(void){
-    DBGPRINT("Initializing...\n");
+    NFOPRINT("Initializing...\n");
     int iResult;
     dev_t dev = MKDEV(iMajorDeviceNumber, 0);
     if(iMajorDeviceNumber){
@@ -159,7 +159,7 @@ static int __init interrupt_demo_init(void){
     //Create device node
     clsDriver = class_create(THIS_MODULE, CLASS_NAME);
     if (IS_ERR(clsDriver)){
-        DBGPRINT("failed in creating device class.\n");
+        WRNPRINT("failed in creating device class.\n");
         return 0;
     }
     device_create(clsDriver, NULL, dev, NULL, NODE_NAME);

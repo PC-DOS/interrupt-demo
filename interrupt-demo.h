@@ -7,13 +7,14 @@
 
 #define DATA_BUFFER_SIZE 1024
 
+//DBGPRINT() is used to print debug messages, comment #define IS_IN_DEBUG to disable them
 #define IS_IN_DEBUG
 #ifdef IS_IN_DEBUG
 #define DBGPRINT(sInfo...) printk(KERN_INFO "InterruptDemo: " sInfo)
 #else
 #define DBGPRINT(sInfo...)
 #endif
-
+//printk() in different levels
 #define NFOPRINT(sInfo...) printk(KERN_INFO "InterruptDemo: " sInfo)
 #define WRNPRINT(sInfo...) printk(KERN_WARNING "InterruptDemo: " sInfo)
 #define ERRPRINT(sInfo...) printk(KERN_ERR "InterruptDemo: " sInfo)
