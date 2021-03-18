@@ -106,7 +106,7 @@ static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
 	//Sample data generation code
 	int i;
     for (i=0; i<DATA_BUFFER_SIZE; ++i){
-        arrDataBuffer[i]=245;
+        arrDataBuffer[i]=245000;
     }
 	ssize_t iResult;
 	return IRQ_HANDLED;
