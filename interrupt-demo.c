@@ -131,7 +131,7 @@ static void interrupt_demo_setup_cdev(struct cdev * lpCharDevice, int iMinorDevi
     lpCharDevice->owner = THIS_MODULE;
     lpCharDevice->ops = lpFileOperations;
     iError = cdev_add(lpCharDevice, iDeviceDeviceNumber, 1);
-    if(iError){
+    if (iError){
         WRNPRINT("Error %d adding device  %d.\n", iError, iMinorDeviceNumber);
     }
     NFOPRINT("Device setup process finished.\n");
@@ -141,7 +141,7 @@ static int __init interrupt_demo_init(void){
     NFOPRINT("Initializing...\n");
     int iResult;
     dev_t dev = MKDEV(iMajorDeviceNumber, 0);
-    if(iMajorDeviceNumber){
+    if (iMajorDeviceNumber){
         //Static device number
         iResult = register_chrdev_region(dev, 1, DRIVER_NAME);
         DBGPRINT("register_chrdev_region().\n");
@@ -152,7 +152,7 @@ static int __init interrupt_demo_init(void){
         DBGPRINT("alloc_chrdev_region().\n");
         iMajorDeviceNumber = MAJOR(dev);
     }
-    if(iResult < 0){ //Errors occurred
+    if (iResult < 0){ //Errors occurred
         WRNPRINT("alloc_chrdev_region() failed.\n");
         return iResult;
     }
