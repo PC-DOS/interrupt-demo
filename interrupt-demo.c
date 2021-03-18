@@ -59,12 +59,7 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
 
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
     DBGPRINT("Reading data from device file...\n");
-    //Sample code
-    int i;
-    for (i=0; i<DATA_BUFFER_SIZE; ++i){
-        arrDataBuffer[i]=245;
-    }
-	ssize_t iResult;
+    //Sample data reading code
     iResult=copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
 	if (iResult){
 		WRNPRINT("Failed to copy %l Bytes of data to user RAM space.\n", iResult);
@@ -108,6 +103,12 @@ static irqreturn_t eint25_interrupt(int iIrq, void * lpDevId){
 //Interrupt handler of DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
 static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
 	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT28_NAME, __FUNCTION__, __LINE__);
+	//Sample data generation code
+	int i;
+    for (i=0; i<DATA_BUFFER_SIZE; ++i){
+        arrDataBuffer[i]=245;
+    }
+	ssize_t iResult;
 	return IRQ_HANDLED;
 }
 //Interrupt handler of S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
