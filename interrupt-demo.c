@@ -207,21 +207,21 @@ static int __init interrupt_demo_init(void){
     interrupt_demo_setup_cdev(&cdevDriver, 0, &interrupt_demo_driver_file_operations);
     DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
     //Use request_irq() to register interrupts here
-	int iResult;
+	int iIrqResult;
 	//Request interrupt PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
-	iResult=gpio_request(EXYNOS4_GPX3(1), XEINT25_NAME);
-	if (0==iResult){
+	iIrqResult=gpio_request(EXYNOS4_GPX3(1), XEINT25_NAME);
+	if (0==iIrqResult){
 		s3c_gpio_cfgpin(EXYNOS4_GPX3(1), S3C_GPIO_SFN(0xF));
 		s3c_gpio_setpull(EXYNOS4_GPX3(1), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX3(1));
 		
 		iReuslt=request_irq(IRQ_EINT(25), eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, interrupt_demo_driver);
-		if (iResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(25), iResult);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(25), iIrqResult);
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(1), iResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(1), iIrqResult);
 	}
 	//Request interrupt DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
 	//Request interrupt S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
