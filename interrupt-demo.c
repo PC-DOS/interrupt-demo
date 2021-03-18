@@ -215,7 +215,7 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX3(1), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX3(1));
 		
-		iReuslt=request_irq(IRQ_EINT(25), eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, interrupt_demo_driver);
+		iIrqResult=request_irq(IRQ_EINT(25), eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, interrupt_demo_driver);
 		if (iIrqResult<0) {
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(25), iIrqResult);
 		}
