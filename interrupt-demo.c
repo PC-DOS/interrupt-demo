@@ -61,7 +61,6 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
     DBGPRINT("Reading data from device file...\n");
     //Sample data reading code
 	ssize_t iResult;
-	DBGPRINT("arrDataBuffer size=%d.\n",sizeof(arrDataBuffer));
     iResult=copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to user RAM space.\n", iResult);
