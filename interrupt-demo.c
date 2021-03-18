@@ -172,19 +172,6 @@ static int interrupt_demo_resume(struct platform_device * lpPlatformDevice){
 	return 0;
 }
 
-/* Platform Driver related functions */
-struct platform_driver interrupt_demo_driver = {
-	.probe = interrupt_demo_probe,
-	.remove = interrupt_demo_remove,
-	.shutdown = interrupt_demo_shutdown,
-	.suspend = interrupt_demo_suspend,
-	.resume = interrupt_demo_resume,
-	.driver = {
-		.name = DRIVER_NAME
-		//.owner = THIS_MODULE
-	}
-};
-
 /* Init & Exit functions */
 static void interrupt_demo_setup_cdev(struct cdev * lpCharDevice, int iMinorDeviceNumber, struct file_operations * lpFileOperations){ //Device setup function, called by init()
     int iError, iDeviceDeviceNumber = MKDEV(iMajorDeviceNumber, iMinorDeviceNumber);
@@ -228,7 +215,7 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX3(1), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX3(1));
 		
-		iIrqResult=request_irq(IRQ_EINT(25), eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, interrupt_demo_driver);
+		iIrqResult=request_irq(IRQ_EINT(25), eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, NULL);
 		if (iIrqResult<0) {
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(25), iIrqResult);
 		}
@@ -268,6 +255,19 @@ static void __exit interrupt_demo_exit(void){
 /* Init function & Exit function */
 module_init(interrupt_demo_init);
 module_exit(interrupt_demo_exit);
+
+/* Platform Driver related functions */
+struct platform_driver interrupt_demo_driver = {
+	.probe = interrupt_demo_probe,
+	.remove = interrupt_demo_remove,
+	.shutdown = interrupt_demo_shutdown,
+	.suspend = interrupt_demo_suspend,
+	.resume = interrupt_demo_resume,
+	.driver = {
+		.name = DRIVER_NAME
+		//.owner = THIS_MODULE
+	}
+};
 
 /* Licenses, Authors & Descriptions */
 MODULE_LICENSE("Dual BSD/GPL");
