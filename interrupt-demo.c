@@ -290,7 +290,10 @@ static void __exit interrupt_demo_exit(void){
     cdev_del(&cdevDriver);
     unregister_chrdev_region(MKDEV(iMajorDeviceNumber, 0), 1);
     //Use free_irq() to unregister interrupts here
-	
+	free_irq(IRQ_EINT(25), NULL);
+	free_irq(IRQ_EINT(28), NULL);
+	free_irq(IRQ_EINT(1), NULL);
+	free_irq(IRQ_EINT(20), NULL);
     return;
 }
 
