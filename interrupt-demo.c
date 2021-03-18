@@ -102,49 +102,52 @@ static struct file_operations interrupt_demo_driver_file_operations = {
 /* Interrupt Handlers */
 //Interrupt handler of PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
 static irqreturn_t eint25_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT25_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
 static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT28_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
 static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT1_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of DP_INT/XEINT20_BAK, Interrupt ID XEINT20, Label EXYNOS4_GPX2(4)
 static irqreturn_t eint20_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT20_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
+
+#ifdef IS_GPIO_INTERRUPT_DEBUG
 //Interrupt handler of KEY_HOME/UART_RING, Interrupt ID XEINT9, Label EXYNOS4_GPX1(1)
 static irqreturn_t eint9_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT9_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of KEY_BACK/SIM_DET, Interrupt ID XEINT10, Label EXYNOS4_GPX1(2)
 static irqreturn_t eint10_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT10_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of KEY_SLEEP/GYRO_INT, Interrupt ID XEINT27, Label EXYNOS4_GPX3(3)
 static irqreturn_t eint27_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT27_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of KEY_VOL+/KP_ROW1, Interrupt ID XEINT17, Label EXYNOS4_GPX2(1)
 static irqreturn_t eint17_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT17_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of KEY_VOL-/KP_ROW0, Interrupt ID XEINT16, Label EXYNOS4_GPX2(0)
 static irqreturn_t eint16_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: %s, at line %d.\n", __FUNCTION__, __LINE__);
+	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT16_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
+#endif
 
 /* Platform Device related functions */
 static int interrupt_demo_probe(struct platform_device * lpPlatformDevice){
@@ -254,7 +257,7 @@ static int __init interrupt_demo_init(void){
 		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX0(1), iIrqResult);
 	}
 	//Request interrupt DP_INT/XEINT20_BAK, Interrupt ID XEINT20, Label EXYNOS4_GPX2(4)
-	iIrqResult=gpio_request(EXYNOS4_GPX2(4), XEINT28_NAME);
+	iIrqResult=gpio_request(EXYNOS4_GPX2(4), XEINT20_NAME);
 	if (0==iIrqResult){
 		s3c_gpio_cfgpin(EXYNOS4_GPX2(4), S3C_GPIO_SFN(0xF));
 		s3c_gpio_setpull(EXYNOS4_GPX2(4), S3C_GPIO_PULL_UP);
@@ -268,11 +271,84 @@ static int __init interrupt_demo_init(void){
 	else{
 		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX2(4), iIrqResult);
 	}
+	#ifdef IS_GPIO_INTERRUPT_DEBUG
+	WRNPRINT("You have enabled on-board GPIO keys\' interrupts. These interrupts need disabling \'GPIO Buttons\' driver in Kernel-Config\'s \'Device Drivers -> Input device support -> Keyboards\' menu to work. If you did so, GPIO keypads may not be available.\n");
 	//Request interrupt KEY_HOME/UART_RING, Interrupt ID XEINT9, Label EXYNOS4_GPX1(1)
+	iIrqResult=gpio_request(EXYNOS4_GPX1(1), XEINT9_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX1(1), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX1(1), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX1(1));
+		
+		iIrqResult=request_irq(IRQ_EINT(9), eint9_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT9_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(9), iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX1(1), iIrqResult);
+	}
 	//Request interrupt KEY_BACK/SIM_DET, Interrupt ID XEINT10, Label EXYNOS4_GPX1(2)
+	iIrqResult=gpio_request(EXYNOS4_GPX1(2), XEINT10_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX1(2), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX1(2), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX1(2));
+		
+		iIrqResult=request_irq(IRQ_EINT(10), eint10_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT10_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(10), iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX1(2), iIrqResult);
+	}
 	//Request interrupt KEY_SLEEP/GYRO_INT, Interrupt ID XEINT27, Label EXYNOS4_GPX3(3)
+	iIrqResult=gpio_request(EXYNOS4_GPX3(3), XEINT27_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX3(3), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX3(3), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX3(3));
+		
+		iIrqResult=request_irq(IRQ_EINT(27), eint27_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT27_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(27), iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(3), iIrqResult);
+	}
 	//Request interrupt KEY_VOL+/KP_ROW1, Interrupt ID XEINT17, Label EXYNOS4_GPX2(1)
+	iIrqResult=gpio_request(EXYNOS4_GPX2(1), XEINT17_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX2(1), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX2(1), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX2(1));
+		
+		iIrqResult=request_irq(IRQ_EINT(17), eint17_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT17_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(17), iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX2(1), iIrqResult);
+	}
 	//Request interrupt KEY_VOL-/KP_ROW0, Interrupt ID XEINT16, Label EXYNOS4_GPX2(0)
+	iIrqResult=gpio_request(EXYNOS4_GPX2(0), XEINT16_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX2(0), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX2(0), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX2(0));
+		
+		iIrqResult=request_irq(IRQ_EINT(16), eint16_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT16_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(16), iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX2(0), iIrqResult);
+	}
+	#endif
     //Create device node
     clsDriver = class_create(THIS_MODULE, CLASS_NAME);
     if (IS_ERR(clsDriver)){
@@ -294,6 +370,13 @@ static void __exit interrupt_demo_exit(void){
 	free_irq(IRQ_EINT(28), NULL);
 	free_irq(IRQ_EINT(1), NULL);
 	free_irq(IRQ_EINT(20), NULL);
+	#ifdef IS_GPIO_INTERRUPT_DEBUG
+	free_irq(IRQ_EINT(9), NULL);
+	free_irq(IRQ_EINT(10), NULL);
+	free_irq(IRQ_EINT(27), NULL);
+	free_irq(IRQ_EINT(7), NULL);
+	free_irq(IRQ_EINT(6), NULL);
+	#endif
     return;
 }
 
