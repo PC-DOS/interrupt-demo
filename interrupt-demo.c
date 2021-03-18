@@ -224,8 +224,50 @@ static int __init interrupt_demo_init(void){
 		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(1), iIrqResult);
 	}
 	//Request interrupt DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
+	iIrqResult=gpio_request(EXYNOS4_GPX3(4), XEINT28_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX3(4), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX3(4), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX3(4));
+		
+		iIrqResult=request_irq(IRQ_EINT(28), eint28_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT28_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(28), iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(4), iIrqResult);
+	}
 	//Request interrupt S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
+	iIrqResult=gpio_request(EXYNOS4_GPX0(1), XEINT1_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX0(1), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX0(1), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX0(1));
+		
+		iIrqResult=request_irq(IRQ_EINT(1), eint1_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT1_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(1), iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX0(1), iIrqResult);
+	}
 	//Request interrupt DP_INT/XEINT20_BAK, Interrupt ID XEINT20, Label EXYNOS4_GPX2(4)
+	iIrqResult=gpio_request(EXYNOS4_GPX2(4), XEINT28_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(EXYNOS4_GPX2(4), S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(EXYNOS4_GPX2(4), S3C_GPIO_PULL_UP);
+		gpio_free(EXYNOS4_GPX2(4));
+		
+		iIrqResult=request_irq(IRQ_EINT(20), eint20_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT20_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(20), iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX2(4), iIrqResult);
+	}
 	//Request interrupt KEY_HOME/UART_RING, Interrupt ID XEINT9, Label EXYNOS4_GPX1(1)
 	//Request interrupt KEY_BACK/SIM_DET, Interrupt ID XEINT10, Label EXYNOS4_GPX1(2)
 	//Request interrupt KEY_SLEEP/GYRO_INT, Interrupt ID XEINT27, Label EXYNOS4_GPX3(3)
