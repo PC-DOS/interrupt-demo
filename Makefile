@@ -11,7 +11,7 @@ KRNLDIR := /home/picsell-dois/iTop4412/LinuxKernel/iTop4412_Kernel_3.0
 PWD ?= $(shell pwd)
 
 # Enable Math library support
-ccflags-y := -lm;
+ldflags-y := -lm;
 
 # Operations when calling make
 all:
