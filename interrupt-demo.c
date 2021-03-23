@@ -92,7 +92,7 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
 	unsigned long lpIoControlParameters = arrCommandBuffer[1];
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-    return 0;
+    return iResult;
 }
  
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
