@@ -44,6 +44,10 @@ struct class *clsDriver; //Device node
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
 static struct cdev cdevDriver; //cdev structure
 
+int IsDataReading = 0; //Marks if we are reading data from the Driver File
+int IsDataWriting = 0; //Marks if we are writing data to the Driver File
+int IsDataBufferRefershing = 0; //Marks if DataBuffer is refreshing
+
 int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 
 /* Character Driver related functions */
@@ -60,11 +64,18 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
     DBGPRINT("Reading data from device file...\n");
     //Sample data reading code
+	disable_irq(IRQ_EINT(28)); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
+	while (IsDataBufferRefershing){ //Wait until IsDataBufferRefershing = 0
+		;
+	}
 	ssize_t iResult;
+	IsDataReading = 1; //Start to read data
     iResult=copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to user RAM space.\n", iResult);
 	}
+	IsDataReading = 0; //End data reading
+	enable_irq(IRQ_EINT(28)); //Enable DAC_INT (XEINT28)
     return iResult;
 }
 
@@ -104,11 +115,18 @@ static irqreturn_t eint25_interrupt(int iIrq, void * lpDevId){
 //Interrupt handler of DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
 static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
 	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT28_NAME, __FUNCTION__, __LINE__);
+	disable_irq_nosync(IRQ_EINT(28)); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
 	//Sample data generation code
+	while (IsDataReading){ //Wait until IsDataReading = 0
+		;
+	}
+	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
 	int i;
     for (i=0; i<DATA_BUFFER_SIZE; ++i){
-        arrDataBuffer[i]=245000;
+        arrDataBuffer[i]=245000+i;
     }
+	IsDataBufferRefershing = 0; //End DataBuffer refreshing
+	enable_irq(IRQ_EINT(28)); //enable_irq() before returning
 	return IRQ_HANDLED;
 }
 //Interrupt handler of S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
