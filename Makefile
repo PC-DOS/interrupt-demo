@@ -10,9 +10,6 @@ KRNLDIR := /home/picsell-dois/iTop4412/LinuxKernel/iTop4412_Kernel_3.0
 # PWD specifies current working directory
 PWD ?= $(shell pwd)
 
-# Enable Math library support
-ldflags-y := -lm;
-
 # Operations when calling make
 all:
 	rm -rf *.ko *.o *.mod.* *.order *.symvers *.cmd *.*.cmd .*.cmd .*.*.cmd .tmp_versions

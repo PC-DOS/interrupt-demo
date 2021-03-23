@@ -37,8 +37,6 @@
 /* Interrupt-related header files */
 #include <linux/interrupt.h>
 #include <linux/irq.h>
-/* Math header files */
-#include <math.h>
 /* Local header files */
 #include "interrupt-demo.h"
 
