@@ -49,6 +49,7 @@ int IsDataWriting = 0; //Marks if we are writing data to the Driver File
 int IsDataBufferRefershing = 0; //Marks if DataBuffer is refreshing
 
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
+unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
 
 /* Character Driver related functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
@@ -81,11 +82,22 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
     DBGPRINT("Wrtiting data to device file...\n");
+	ssize_t iResult;
+	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, CTL_COMMAND_BUFFER_SIZE);
+	if (iResult){
+		WRNPRINT("Failed to copy %ld Bytes of data to kernel RAM space.\n", iResult);
+		return iResult;
+	}
+	unsigned int iIoControlCommand = arrCommandBuffer[0];
+	unsigned long lpIoControlParameters = arrCommandBuffer[1];
+	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
     return 0;
 }
  
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
     DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
     return 0;
 }
 
@@ -192,6 +204,50 @@ static int interrupt_demo_suspend(struct platform_device * lpPlatformDevice, pm_
 static int interrupt_demo_resume(struct platform_device * lpPlatformDevice){
 	DBGPRINT("Resuming...\n");
 	return 0;
+}
+
+/* IOControl Handlers */
+void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoControlParameters){
+	disable_irq(DAC_INT); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
+	switch (iIoControlCommand){
+		case CTL_DISABLE_IRQ:
+			
+			break;
+		case CTL_ENABLE_IRQ:
+			
+			break;
+		case CTL_SET_USER_APP_PID:
+			
+			break;
+		case CTL_SET_DELAY_HIGH_BYTE:
+			
+			break;
+		case CTL_SET_DELAY_LOW_BYTE:
+			
+			break;
+		case CTL_SET_RATE:
+			
+			break;
+		case CTL_SET_SCALE_HIGH_BYTE:
+			
+			break;
+		case CTL_SET_SCALE_LOW_BYTE:
+			
+			break;
+		case CTL_SET_SCALE_INT:
+			
+			break;
+		case CTL_SET_GAIN:
+			
+			break;
+		case CTL_SET_CHANNEL:
+			
+			break;
+		default:
+			
+			break;
+	}
+	enable_irq(DAC_INT); //Enable DAC_INT (XEINT28)
 }
 
 /* Init & Exit functions */
