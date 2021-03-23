@@ -6,6 +6,7 @@
 #define CLASS_NAME "interrupt-demo-class"
 
 #define DATA_BUFFER_SIZE 1024
+#define DATA_MAX_VALUE 400
 
 //DBGPRINT() is used to print debug messages, comment #define IS_IN_DEBUG to disable them
 #define IS_IN_DEBUG

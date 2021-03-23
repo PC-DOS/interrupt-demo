@@ -48,7 +48,7 @@ int IsDataReading = 0; //Marks if we are reading data from the Driver File
 int IsDataWriting = 0; //Marks if we are writing data to the Driver File
 int IsDataBufferRefershing = 0; //Marks if DataBuffer is refreshing
 
-int arrDataBuffer[DATA_BUFFER_SIZE]={0};
+unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 
 /* Character Driver related functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
