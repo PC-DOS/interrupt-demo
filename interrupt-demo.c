@@ -62,6 +62,23 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
     return 0;
 }
 
+/* interrupt_demo_read() Function
+ *
+ * This function copies arrDataBuffer to user RAM space.
+ * The user space data buffer is an array, whose data type is char (Byte).
+ * Thus, the size of user space data buffer must be 4 times of the size of arrDataBuffer (for unsigned int type data).
+ * To reconstruct data (pesudo C++ code):
+ * 
+ * [[code type="Cpp"]]
+ * unsigned int arrData[DATA_SIZE];
+ * char * chrData = new char[DATA_SIZE * 4];
+ * OpenFile(...);
+ * read(chrData, DATA_SIZE * 4);
+ * for (int i=0; i<DATA_SIZE; ++i){
+ *      arrData[i]=(int(chrData[i*4])) + (int(chrData[i*4+1])<<8) + (int(chrData[i*4+2])<<16) + (int(chrData[i*4+3])<<24);
+ * }
+ * [[/code]]
+ */
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
     DBGPRINT("Reading data from device file...\n");
     //Sample data reading code
@@ -80,6 +97,13 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
     return iResult;
 }
 
+/* interrupt_demo_write() Function
+ *
+ * This function copies IO control commands from user RAM space to kernel RAM space (arrCommandBuffer).
+ * Array arrCommandBuffer has 2 unsigned char (Byte) spaces:
+ * The first one (arrCommandBuffer[0]) contains commands (iIoControlCommand);
+ * The second one (arrCommandBuffer[1]) contains arguments (lpIoControlParameters);
+ */
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
     DBGPRINT("Wrtiting data to device file...\n");
 	ssize_t iResult;
