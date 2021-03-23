@@ -231,11 +231,11 @@ static int __init interrupt_demo_init(void){
     //Use request_irq() to register interrupts here
 	int iIrqResult;
 	//Request interrupt PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
-	iIrqResult=gpio_request(EXYNOS4_GPX3(1), XEINT25_NAME);
+	iIrqResult=gpio_request(PW_INT_LABEL, XEINT25_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX3(1), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX3(1), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX3(1));
+		s3c_gpio_cfgpin(PW_INT_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(PW_INT_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(PW_INT_LABEL);
 		
 		iIrqResult=request_irq(PW_INT, eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, NULL);
 		if (iIrqResult<0) {
@@ -243,14 +243,14 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(1), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", PW_INT_LABEL, iIrqResult);
 	}
 	//Request interrupt DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
-	iIrqResult=gpio_request(EXYNOS4_GPX3(4), XEINT28_NAME);
+	iIrqResult=gpio_request(DAC_INT_LABEL, XEINT28_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX3(4), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX3(4), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX3(4));
+		s3c_gpio_cfgpin(DAC_INT_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(DAC_INT_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(DAC_INT_LABEL);
 		
 		iIrqResult=request_irq(DAC_INT, eint28_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT28_NAME, NULL);
 		if (iIrqResult<0) {
@@ -258,14 +258,14 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(4), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", DAC_INT_LABEL, iIrqResult);
 	}
 	//Request interrupt S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
-	iIrqResult=gpio_request(EXYNOS4_GPX0(1), XEINT1_NAME);
+	iIrqResult=gpio_request(S_INT_LABEL, XEINT1_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX0(1), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX0(1), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX0(1));
+		s3c_gpio_cfgpin(S_INT_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(S_INT_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(S_INT_LABEL);
 		
 		iIrqResult=request_irq(S_INT, eint1_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT1_NAME, NULL);
 		if (iIrqResult<0) {
@@ -273,14 +273,14 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX0(1), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", S_INT_LABEL, iIrqResult);
 	}
 	//Request interrupt DP_INT/XEINT20_BAK, Interrupt ID XEINT20, Label EXYNOS4_GPX2(4)
-	iIrqResult=gpio_request(EXYNOS4_GPX2(4), XEINT20_NAME);
+	iIrqResult=gpio_request(DP_INT_LABEL, XEINT20_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX2(4), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX2(4), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX2(4));
+		s3c_gpio_cfgpin(DP_INT_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(DP_INT_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(DP_INT_LABEL);
 		
 		iIrqResult=request_irq(DP_INT, eint20_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT20_NAME, NULL);
 		if (iIrqResult<0) {
@@ -288,16 +288,16 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX2(4), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", DP_INT_LABEL, iIrqResult);
 	}
 	#ifdef IS_GPIO_INTERRUPT_DEBUG
 	WRNPRINT("You have enabled on-board GPIO keys\' interrupts. These interrupts need disabling \'GPIO Buttons\' driver in Kernel-Config\'s \'Device Drivers -> Input device support -> Keyboards\' menu to work. If you did so, GPIO keypads may not be available.\n");
 	//Request interrupt KEY_HOME/UART_RING, Interrupt ID XEINT9, Label EXYNOS4_GPX1(1)
-	iIrqResult=gpio_request(EXYNOS4_GPX1(1), XEINT9_NAME);
+	iIrqResult=gpio_request(KEY_HOME_LABEL, XEINT9_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX1(1), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX1(1), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX1(1));
+		s3c_gpio_cfgpin(KEY_HOME_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(KEY_HOME_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(KEY_HOME_LABEL);
 		
 		iIrqResult=request_irq(KEY_HOME, eint9_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT9_NAME, NULL);
 		if (iIrqResult<0) {
@@ -305,14 +305,14 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX1(1), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", KEY_HOME_LABEL, iIrqResult);
 	}
 	//Request interrupt KEY_BACK/SIM_DET, Interrupt ID XEINT10, Label EXYNOS4_GPX1(2)
-	iIrqResult=gpio_request(EXYNOS4_GPX1(2), XEINT10_NAME);
+	iIrqResult=gpio_request(KEY_BACK_LABEL, XEINT10_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX1(2), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX1(2), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX1(2));
+		s3c_gpio_cfgpin(KEY_BACK_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(KEY_BACK_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(KEY_BACK_LABEL);
 		
 		iIrqResult=request_irq(KEY_BACK, eint10_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT10_NAME, NULL);
 		if (iIrqResult<0) {
@@ -320,14 +320,14 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX1(2), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", KEY_BACK_LABEL, iIrqResult);
 	}
 	//Request interrupt KEY_SLEEP/GYRO_INT, Interrupt ID XEINT27, Label EXYNOS4_GPX3(3)
-	iIrqResult=gpio_request(EXYNOS4_GPX3(3), XEINT27_NAME);
+	iIrqResult=gpio_request(KEY_SLEEP_LABEL, XEINT27_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX3(3), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX3(3), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX3(3));
+		s3c_gpio_cfgpin(KEY_SLEEP_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(KEY_SLEEP_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(KEY_SLEEP_LABEL);
 		
 		iIrqResult=request_irq(KEY_SLEEP, eint27_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT27_NAME, NULL);
 		if (iIrqResult<0) {
@@ -335,14 +335,14 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX3(3), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", KEY_SLEEP_LABEL, iIrqResult);
 	}
 	//Request interrupt KEY_VOL+/KP_ROW1, Interrupt ID XEINT17, Label EXYNOS4_GPX2(1)
-	iIrqResult=gpio_request(EXYNOS4_GPX2(1), XEINT17_NAME);
+	iIrqResult=gpio_request(KEY_VOLUP_LABEL, XEINT17_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX2(1), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX2(1), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX2(1));
+		s3c_gpio_cfgpin(KEY_VOLUP_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(KEY_VOLUP_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(KEY_VOLUP_LABEL);
 		
 		iIrqResult=request_irq(KEY_VOLUP, eint17_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT17_NAME, NULL);
 		if (iIrqResult<0) {
@@ -350,14 +350,14 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX2(1), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", KEY_VOLUP_LABEL, iIrqResult);
 	}
 	//Request interrupt KEY_VOL-/KP_ROW0, Interrupt ID XEINT16, Label EXYNOS4_GPX2(0)
-	iIrqResult=gpio_request(EXYNOS4_GPX2(0), XEINT16_NAME);
+	iIrqResult=gpio_request(KEY_VOLDOWN_LABEL, XEINT16_NAME);
 	if (0==iIrqResult){
-		s3c_gpio_cfgpin(EXYNOS4_GPX2(0), S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(EXYNOS4_GPX2(0), S3C_GPIO_PULL_UP);
-		gpio_free(EXYNOS4_GPX2(0));
+		s3c_gpio_cfgpin(KEY_VOLDOWN_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(KEY_VOLDOWN_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(KEY_VOLDOWN_LABEL);
 		
 		iIrqResult=request_irq(KEY_VOLDOWN, eint16_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT16_NAME, NULL);
 		if (iIrqResult<0) {
@@ -365,7 +365,7 @@ static int __init interrupt_demo_init(void){
 		}
 	}
 	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", EXYNOS4_GPX2(0), iIrqResult);
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", KEY_VOLDOWN_LABEL, iIrqResult);
 	}
 	#endif
     //Create device node
