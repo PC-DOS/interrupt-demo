@@ -126,6 +126,9 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
 }
 
 /* For kernels before 2.6.36
+ * 
+ * In newer kernels, use unlocked_ioctl() instead.
+ * Otherwise, an error will occur when compiling.
 static int interrupt_demo_unlocked_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
     DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
     return 0;
