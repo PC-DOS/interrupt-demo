@@ -64,7 +64,7 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
     DBGPRINT("Reading data from device file...\n");
     //Sample data reading code
-	disable_irq(IRQ_EINT(28)); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
+	disable_irq(DAC_INT); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
 	while (IsDataBufferRefershing){ //Wait until IsDataBufferRefershing = 0
 		;
 	}
@@ -75,7 +75,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 		WRNPRINT("Failed to copy %ld Bytes of data to user RAM space.\n", iResult);
 	}
 	IsDataReading = 0; //End data reading
-	enable_irq(IRQ_EINT(28)); //Enable DAC_INT (XEINT28)
+	enable_irq(DAC_INT); //Enable DAC_INT (XEINT28)
     return iResult;
 }
 
@@ -115,7 +115,7 @@ static irqreturn_t eint25_interrupt(int iIrq, void * lpDevId){
 //Interrupt handler of DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
 static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
 	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT28_NAME, __FUNCTION__, __LINE__);
-	disable_irq_nosync(IRQ_EINT(28)); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
+	disable_irq_nosync(DAC_INT); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
 	//Sample data generation code
 	while (IsDataReading){ //Wait until IsDataReading = 0
 		;
@@ -126,7 +126,7 @@ static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
         arrDataBuffer[i]=245000+i;
     }
 	IsDataBufferRefershing = 0; //End DataBuffer refreshing
-	enable_irq(IRQ_EINT(28)); //enable_irq() before returning
+	enable_irq(DAC_INT); //enable_irq() before returning
 	return IRQ_HANDLED;
 }
 //Interrupt handler of S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
@@ -237,9 +237,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX3(1), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX3(1));
 		
-		iIrqResult=request_irq(IRQ_EINT(25), eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, NULL);
+		iIrqResult=request_irq(PW_INT, eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(25), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", PW_INT, iIrqResult);
 		}
 	}
 	else{
@@ -252,9 +252,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX3(4), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX3(4));
 		
-		iIrqResult=request_irq(IRQ_EINT(28), eint28_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT28_NAME, NULL);
+		iIrqResult=request_irq(DAC_INT, eint28_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT28_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(28), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", DAC_INT, iIrqResult);
 		}
 	}
 	else{
@@ -267,9 +267,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX0(1), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX0(1));
 		
-		iIrqResult=request_irq(IRQ_EINT(1), eint1_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT1_NAME, NULL);
+		iIrqResult=request_irq(S_INT, eint1_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT1_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(1), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", S_INT, iIrqResult);
 		}
 	}
 	else{
@@ -282,9 +282,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX2(4), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX2(4));
 		
-		iIrqResult=request_irq(IRQ_EINT(20), eint20_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT20_NAME, NULL);
+		iIrqResult=request_irq(DP_INT, eint20_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT20_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(20), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", DP_INT, iIrqResult);
 		}
 	}
 	else{
@@ -299,9 +299,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX1(1), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX1(1));
 		
-		iIrqResult=request_irq(IRQ_EINT(9), eint9_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT9_NAME, NULL);
+		iIrqResult=request_irq(KEY_HOME, eint9_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT9_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(9), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_HOME, iIrqResult);
 		}
 	}
 	else{
@@ -314,9 +314,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX1(2), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX1(2));
 		
-		iIrqResult=request_irq(IRQ_EINT(10), eint10_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT10_NAME, NULL);
+		iIrqResult=request_irq(KEY_BACK, eint10_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT10_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(10), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_BACK, iIrqResult);
 		}
 	}
 	else{
@@ -329,9 +329,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX3(3), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX3(3));
 		
-		iIrqResult=request_irq(IRQ_EINT(27), eint27_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT27_NAME, NULL);
+		iIrqResult=request_irq(KEY_SLEEP, eint27_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT27_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(27), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_SLEEP, iIrqResult);
 		}
 	}
 	else{
@@ -344,9 +344,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX2(1), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX2(1));
 		
-		iIrqResult=request_irq(IRQ_EINT(17), eint17_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT17_NAME, NULL);
+		iIrqResult=request_irq(KEY_VOLUP, eint17_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT17_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(17), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_VOLUP, iIrqResult);
 		}
 	}
 	else{
@@ -359,9 +359,9 @@ static int __init interrupt_demo_init(void){
 		s3c_gpio_setpull(EXYNOS4_GPX2(0), S3C_GPIO_PULL_UP);
 		gpio_free(EXYNOS4_GPX2(0));
 		
-		iIrqResult=request_irq(IRQ_EINT(16), eint16_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT16_NAME, NULL);
+		iIrqResult=request_irq(KEY_VOLDOWN, eint16_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT16_NAME, NULL);
 		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", IRQ_EINT(16), iIrqResult);
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_VOLDOWN, iIrqResult);
 		}
 	}
 	else{
@@ -385,16 +385,16 @@ static void __exit interrupt_demo_exit(void){
     cdev_del(&cdevDriver);
     unregister_chrdev_region(MKDEV(iMajorDeviceNumber, 0), 1);
     //Use free_irq() to unregister interrupts here
-	free_irq(IRQ_EINT(25), NULL);
-	free_irq(IRQ_EINT(28), NULL);
-	free_irq(IRQ_EINT(1), NULL);
-	free_irq(IRQ_EINT(20), NULL);
+	free_irq(PW_INT, NULL);
+	free_irq(DAC_INT, NULL);
+	free_irq(S_INT, NULL);
+	free_irq(DP_INT, NULL);
 	#ifdef IS_GPIO_INTERRUPT_DEBUG
-	free_irq(IRQ_EINT(9), NULL);
-	free_irq(IRQ_EINT(10), NULL);
-	free_irq(IRQ_EINT(27), NULL);
-	free_irq(IRQ_EINT(7), NULL);
-	free_irq(IRQ_EINT(6), NULL);
+	free_irq(KEY_HOME, NULL);
+	free_irq(KEY_BACK, NULL);
+	free_irq(KEY_SLEEP, NULL);
+	free_irq(KEY_VOLUP, NULL);
+	free_irq(KEY_VOLDOWN, NULL);
 	#endif
     return;
 }
