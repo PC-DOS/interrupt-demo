@@ -55,12 +55,12 @@ unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
 
 /* Character Driver related functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
-    DBGPRINT("Device file opending...\n");
+    //DBGPRINT("Device file opending...\n");
     return 0;
 }
 
 static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
-    DBGPRINT("Device file closing...\n");
+    //DBGPRINT("Device file closing...\n");
     return 0;
 }
 
@@ -82,7 +82,7 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
  * [[/code]]
  */
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
-    DBGPRINT("Reading data from device file...\n");
+    //DBGPRINT("Reading data from device file...\n");
     //Sample data reading code
 	disable_irq(DAC_INT); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
 	while (IsDataBufferRefershing){ //Wait until IsDataBufferRefershing = 0
