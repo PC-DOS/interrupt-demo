@@ -6,7 +6,7 @@
 #define CLASS_NAME "interrupt-demo-class"
 
 #define DATA_BUFFER_SIZE 1000 //Data Buffer (to store data and read) size
-#define DATA_MAX_VALUE 400 //Max data value
+#define DATA_MAX_VALUE 40 //Max data value
 #define CTL_COMMAND_BUFFER_SIZE 2 //Command Buffer (for write() function) size
 
 //DBGPRINT() is used to print debug messages, comment #define IS_IN_DEBUG to disable them

@@ -82,19 +82,25 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
  * [[/code]]
  */
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
-    //DBGPRINT("Reading data from device file...\n");
-    //Sample data reading code
+	//DBGPRINT("Reading data from device file...\n");
+	//Sample data reading code
 	disable_irq(DAC_INT); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
 	while (IsDataBufferRefershing){ //Wait until IsDataBufferRefershing = 0
 		;
 	}
 	ssize_t iResult;
 	IsDataReading = 1; //Start to read data
-    iResult=copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
+	iResult=copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to user RAM space.\n", iResult);
 	}
 	IsDataReading = 0; //End data reading
+	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
+	int i;
+	for (i=0; i<DATA_BUFFER_SIZE; ++i){
+		arrDataBuffer[i]=random32() % DATA_MAX_VALUE;
+	}
+	IsDataBufferRefershing = 0; //End DataBuffer refreshing
 	enable_irq(DAC_INT); //Enable DAC_INT (XEINT28)
     return iResult;
 }
@@ -107,7 +113,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
  * The second one (arrCommandBuffer[1]) contains arguments (lpIoControlParameters);
  */
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
-    DBGPRINT("Wrtiting data to device file...\n");
+	DBGPRINT("Wrtiting data to device file...\n");
 	ssize_t iResult;
 	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, CTL_COMMAND_BUFFER_SIZE);
 	if (iResult){
@@ -163,9 +169,9 @@ static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
 	}
 	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
 	int i;
-    for (i=0; i<DATA_BUFFER_SIZE; ++i){
-        arrDataBuffer[i]=random32() % DATA_MAX_VALUE;
-    }
+	for (i=0; i<DATA_BUFFER_SIZE; ++i){
+		arrDataBuffer[i]=random32() % DATA_MAX_VALUE;
+	}
 	IsDataBufferRefershing = 0; //End DataBuffer refreshing
 	enable_irq(DAC_INT); //enable_irq() before returning
 	return IRQ_HANDLED;
