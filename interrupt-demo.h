@@ -5,7 +5,7 @@
 #define NODE_NAME "interrupt-demo"
 #define CLASS_NAME "interrupt-demo-class"
 
-#define DATA_BUFFER_SIZE 1024 //Data Buffer (to store data and read) size
+#define DATA_BUFFER_SIZE 1000 //Data Buffer (to store data and read) size
 #define DATA_MAX_VALUE 400 //Max data value
 #define CTL_COMMAND_BUFFER_SIZE 2 //Command Buffer (for write() function) size
 
