@@ -37,7 +37,7 @@
 /* Interrupt-related header files */
 #include <linux/interrupt.h>
 #include <linux/irq.h>
-/* Random */
+/* Library to generate random numbers */
 #include <linux/random.h>
 /* Local header files */
 #include "interrupt-demo.h"
