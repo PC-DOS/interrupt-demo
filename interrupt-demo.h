@@ -17,9 +17,9 @@
 #define DBGPRINT(sInfo...)
 #endif
 //printk() in different levels
-#define NFOPRINT(sInfo...) printk(KERN_INFO "InterruptDemo: " sInfo)
-#define WRNPRINT(sInfo...) printk(KERN_WARNING "InterruptDemo: " sInfo)
-#define ERRPRINT(sInfo...) printk(KERN_ERR "InterruptDemo: " sInfo)
+#define NFOPRINT(sInfo...) printk(KERN_INFO "InterruptDemo - Info: " sInfo)
+#define WRNPRINT(sInfo...) printk(KERN_WARNING "InterruptDemo - Warning: " sInfo)
+#define ERRPRINT(sInfo...) printk(KERN_ERR "InterruptDemo - Error: " sInfo)
 
 //Interrupt Names
 #define IS_GPIO_INTERRUPT_DEBUG //Comment this when using GPIO keypad
