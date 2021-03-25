@@ -41,6 +41,7 @@
 #include <linux/random.h>
 /* Local header files */
 #include "interrupt-demo.h"
+#include "MathFunctions.h"
 
 struct class *clsDriver; //Device node 
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
@@ -90,7 +91,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	}
 	ssize_t iResult;
 	IsDataReading = 1; //Start to read data
-	iResult=copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
+	iResult=copy_to_user(lpszBuffer, arrDataBuffer, GetMin(sizeof(arrDataBuffer),iSize));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to user RAM space.\n", iResult);
 	}
@@ -115,7 +116,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
 	DBGPRINT("Wrtiting data to device file...\n");
 	ssize_t iResult;
-	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, CTL_COMMAND_BUFFER_SIZE);
+	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, GetMin(CTL_COMMAND_BUFFER_SIZE,iSize));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to kernel RAM space.\n", iResult);
 		return iResult;
