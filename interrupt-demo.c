@@ -13,7 +13,7 @@
  * || KEY_SLEEP          || GYRO_INT       || XEINT27        || EXYNOS4_GPX3(3) ||
  * || KEY_VOL+           || KP_ROW1        || XEINT17        || EXYNOS4_GPX2(1) ||
  * || KEY_VOL-           || KP_ROW0        || XEINT16        || EXYNOS4_GPX2(0) ||
- * KEY_**** are only used in INTERRUPT_DEBUG mode, comment #define IS_GPIO_INTERRUPT_DEBUG in header file to disable this mode.
+ * * KEY_**** are only used in INTERRUPT_DEBUG mode, comment #define IS_GPIO_INTERRUPT_DEBUG in header file to disable this mode.
  *
  */
 
