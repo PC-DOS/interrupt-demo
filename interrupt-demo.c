@@ -70,6 +70,7 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
  * This function copies arrDataBuffer to user RAM space.
  * The user space data buffer is an array, whose data type is char (Byte).
  * Thus, the size of user space data buffer must be 4 times of the size of arrDataBuffer (for unsigned int type data).
+ * It's suggested that the size of user space data buffer is larger than 4 times of the size of arrDataBuffer (for unsigned int type data) in order to avoid Segmentation Fault.
  * To reconstruct data (pesudo C++ code):
  * 
  * [[code type="Cpp"]]
