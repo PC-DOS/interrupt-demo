@@ -156,13 +156,13 @@ static struct file_operations interrupt_demo_driver_file_operations = {
 /* Interrupt Handlers */
 //Interrupt handler of PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
 static irqreturn_t eint25_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT25_NAME, __FUNCTION__, __LINE__);
+	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT25_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
 static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT28_NAME, __FUNCTION__, __LINE__);
 	disable_irq_nosync(DAC_INT); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
+	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT28_NAME, __FUNCTION__, __LINE__);
 	//Sample data generation code
 	while (IsDataReading){ //Wait until IsDataReading = 0
 		;
@@ -178,12 +178,12 @@ static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
 }
 //Interrupt handler of S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
 static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT1_NAME, __FUNCTION__, __LINE__);
+	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT1_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 //Interrupt handler of DP_INT/XEINT20_BAK, Interrupt ID XEINT20, Label EXYNOS4_GPX2(4)
 static irqreturn_t eint20_interrupt(int iIrq, void * lpDevId){
-	DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT20_NAME, __FUNCTION__, __LINE__);
+	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT20_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 
@@ -246,10 +246,76 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 	disable_irq(DAC_INT); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
 	switch (iIoControlCommand){
 		case CTL_DISABLE_IRQ:
-			
+			switch (lpIoControlParameters){
+				case PW_INT:
+					disable_irq(PW_INT);
+					break;
+				case DAC_INT:
+					disable_irq(DAC_INT);
+					break;
+				case S_INT:
+					disable_irq(S_INT);
+					break;
+				case DP_INT:
+					disable_irq(DP_INT);
+					break;
+#ifdef IS_GPIO_INTERRUPT_DEBUG
+				case KEY_HOME:
+					disable_irq(KEY_HOME);
+					break;
+				case KEY_BACK:
+					disable_irq(KEY_BACK);
+					break;
+				case KEY_SLEEP:
+					disable_irq(KEY_SLEEP);
+					break;
+				case KEY_VOLUP:
+					disable_irq(KEY_VOLUP);
+					break;
+				case KEY_VOLDOWN:
+					disable_irq(KEY_VOLDOWN);
+					break;
+#endif
+				default:
+					//Don't disable any Interrupts
+					break;
+			}
 			break;
 		case CTL_ENABLE_IRQ:
-			
+			switch (lpIoControlParameters){
+				case PW_INT:
+					enable_irq(PW_INT);
+					break;
+				case DAC_INT:
+					enable_irq(DAC_INT);
+					break;
+				case S_INT:
+					enable_irq(S_INT);
+					break;
+				case DP_INT:
+					enable_irq(DP_INT);
+					break;
+#ifdef IS_GPIO_INTERRUPT_DEBUG
+				case KEY_HOME:
+					enable_irq(KEY_HOME);
+					break;
+				case KEY_BACK:
+					enable_irq(KEY_BACK);
+					break;
+				case KEY_SLEEP:
+					enable_irq(KEY_SLEEP);
+					break;
+				case KEY_VOLUP:
+					enable_irq(KEY_VOLUP);
+					break;
+				case KEY_VOLDOWN:
+					enable_irq(KEY_VOLDOWN);
+					break;
+#endif
+				default:
+					//Don't enable any Interrupts
+					break;
+			}
 			break;
 		case CTL_SET_USER_APP_PID:
 			
@@ -381,7 +447,7 @@ static int __init interrupt_demo_init(void){
 	else{
 		WRNPRINT("Request GPIO %d failed with return code %d.\n", DP_INT_LABEL, iIrqResult);
 	}
-	#ifdef IS_GPIO_INTERRUPT_DEBUG
+#ifdef IS_GPIO_INTERRUPT_DEBUG
 	WRNPRINT("You have enabled on-board GPIO keys\' interrupts. These interrupts need disabling \'GPIO Buttons\' driver in Kernel-Config\'s \'Device Drivers -> Input device support -> Keyboards\' menu to work. If you did so, GPIO keypads may not be available.\n");
 	//Request interrupt KEY_HOME/UART_RING, Interrupt ID XEINT9, Label EXYNOS4_GPX1(1)
 	iIrqResult=gpio_request(KEY_HOME_LABEL, XEINT9_NAME);
@@ -458,7 +524,7 @@ static int __init interrupt_demo_init(void){
 	else{
 		WRNPRINT("Request GPIO %d failed with return code %d.\n", KEY_VOLDOWN_LABEL, iIrqResult);
 	}
-	#endif
+#endif
 	//Create device node
 	clsDriver = class_create(THIS_MODULE, CLASS_NAME);
 	if (IS_ERR(clsDriver)){
@@ -480,13 +546,13 @@ static void __exit interrupt_demo_exit(void){
 	free_irq(DAC_INT, NULL);
 	free_irq(S_INT, NULL);
 	free_irq(DP_INT, NULL);
-	#ifdef IS_GPIO_INTERRUPT_DEBUG
+#ifdef IS_GPIO_INTERRUPT_DEBUG
 	free_irq(KEY_HOME, NULL);
 	free_irq(KEY_BACK, NULL);
 	free_irq(KEY_SLEEP, NULL);
 	free_irq(KEY_VOLUP, NULL);
 	free_irq(KEY_VOLDOWN, NULL);
-	#endif
+#endif
 	return;
 }
 
