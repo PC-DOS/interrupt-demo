@@ -87,7 +87,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	//DBGPRINT("Reading data from device file...\n");
 	//Sample data reading code
 	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
-	spin_lock(&spnlkDataBufferLocker);
+	spin_lock(&spnlkDataBufferLocker); //Locks arrDataBuffer
 	ssize_t iResult;
 	iResult=copy_to_user(lpszBuffer, arrDataBuffer, GetMin(sizeof(arrDataBuffer),iSize));
 	if (iResult){
@@ -97,7 +97,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
-	spin_unlock(&spnlkDataBufferLocker);
+	spin_unlock(&spnlkDataBufferLocker); //Don't forget to unlock me!
 	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return iResult;
 }
@@ -156,12 +156,12 @@ static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
 	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT1_NAME, __FUNCTION__, __LINE__);
 	disable_irq_nosync(S_INT); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
 	//Sample data generation code
-	spin_lock(&spnlkDataBufferLocker);
+	spin_lock(&spnlkDataBufferLocker); //Locks arrDataBuffer
 	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
-	spin_unlock(&spnlkDataBufferLocker);
+	spin_unlock(&spnlkDataBufferLocker); //Don't forget to unlock me!
 	enable_irq(S_INT); //enable_irq() before returning
 	return IRQ_HANDLED;
 }
