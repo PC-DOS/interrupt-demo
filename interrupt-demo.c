@@ -100,7 +100,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
 	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
-		arrDataBuffer[i]=random32() % DATA_MAX_VALUE;
+		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
 	IsDataBufferRefershing = 0; //End DataBuffer refreshing
 	enable_irq(DAC_INT); //Enable DAC_INT (XEINT28)
@@ -172,7 +172,7 @@ static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
 	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
 	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
-		arrDataBuffer[i]=random32() % DATA_MAX_VALUE;
+		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
 	IsDataBufferRefershing = 0; //End DataBuffer refreshing
 	enable_irq(DAC_INT); //enable_irq() before returning
