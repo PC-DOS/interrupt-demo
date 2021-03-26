@@ -2,7 +2,7 @@
 
 # Specify source code
 # Define object file
-obj-m += interrupt-demo.o MathFunctions.o
+obj-m += interrupt-demo.o
 
 # KDIR specifies source code directory
 KRNLDIR := /home/picsell-dois/iTop4412/LinuxKernel/iTop4412_Kernel_3.0
