@@ -99,7 +99,6 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	IsDataReading = 0; //End data reading
 	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
 	int i;
-	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
