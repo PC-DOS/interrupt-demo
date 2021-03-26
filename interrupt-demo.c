@@ -92,8 +92,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	}
 	ssize_t iResult;
 	IsDataReading = 1; //Start to read data
-	//iResult=copy_to_user(lpszBuffer, arrDataBuffer, GetMin(sizeof(arrDataBuffer),iSize));
-	iResult=copy_to_user(lpszBuffer, arrDataBuffer, sizeof(arrDataBuffer));
+	iResult=copy_to_user(lpszBuffer, arrDataBuffer, GetMin(sizeof(arrDataBuffer),iSize));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to user RAM space.\n", iResult);
 	}
