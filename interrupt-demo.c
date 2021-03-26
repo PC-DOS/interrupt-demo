@@ -3,16 +3,16 @@
  * This is a character driver, which is used to demostrate Exynos-4412's interrupts
  * 
  * We use the following Interrupts:
- * || Private Definition || Pin Definition || INT ID (XEINT) || Label           ||
- * || PW_INT             || GM_INT2        || XEINT25        || EXYNOS4_GPX3(1) ||
- * || DAC_INT            || COMPASS_RDY    || XEINT28        || EXYNOS4_GPX3(4) ||
- * || S_INT              || XEINT1_BAK     || XEINT1         || EXYNOS4_GPX0(1) ||
- * || DP_INT             || XEINT20_BAK    || XEINT20        || EXYNOS4_GPX2(4) ||
- * || KEY_HOME           || UART_RING      || XEINT9         || EXYNOS4_GPX1(1) ||
- * || KEY_BACK           || SIM_DET        || XEINT10        || EXYNOS4_GPX1(2) ||
- * || KEY_SLEEP          || GYRO_INT       || XEINT27        || EXYNOS4_GPX3(3) ||
- * || KEY_VOL+           || KP_ROW1        || XEINT17        || EXYNOS4_GPX2(1) ||
- * || KEY_VOL-           || KP_ROW0        || XEINT16        || EXYNOS4_GPX2(0) ||
+ * || Private Definition || Pin Definition || INT ID (XEINT) || Label           || Meaning                                                                            ||
+ * || S_INT              || XEINT1_BAK     || XEINT1         || EXYNOS4_GPX0(1) || A sampling sequence has finished, we should read data from device. Original EINT1. ||
+ * || DP_INT             || XEINT20_BAK    || XEINT20        || EXYNOS4_GPX2(4) || Triggers 50 times per second (Hz), wakes up the UserApp. Original EINT4.           ||
+ * || DAC_INT            || COMPASS_RDY    || XEINT28        || EXYNOS4_GPX3(4) || Digital-Analog Converter interrupt. Original EINT6.                                ||
+ * || PW_INT             || GM_INT2        || XEINT25        || EXYNOS4_GPX3(1) || Power-Key interrupt. Original EINT16.                                              ||
+ * || KEY_HOME           || UART_RING      || XEINT9         || EXYNOS4_GPX1(1) || iTop-4412 on-board Home Key.                                                       ||
+ * || KEY_BACK           || SIM_DET        || XEINT10        || EXYNOS4_GPX1(2) || iTop-4412 on-board Back Key.                                                       ||
+ * || KEY_SLEEP          || GYRO_INT       || XEINT27        || EXYNOS4_GPX3(3) || iTop-4412 on-board Sleep Key.                                                      ||
+ * || KEY_VOL+           || KP_ROW1        || XEINT17        || EXYNOS4_GPX2(1) || iTop-4412 on-board Vol+ Key.                                                       ||
+ * || KEY_VOL-           || KP_ROW0        || XEINT16        || EXYNOS4_GPX2(0) || iTop-4412 on-board Vol- Key.                                                       ||
  * * KEY_**** are only used in INTERRUPT_DEBUG mode, comment #define IS_GPIO_INTERRUPT_DEBUG in header file to disable this mode.
  *
  */
@@ -86,7 +86,7 @@ static int interrupt_demo_release (struct inode * lpNode, struct file * lpFile){
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
 	//DBGPRINT("Reading data from device file...\n");
 	//Sample data reading code
-	disable_irq(DAC_INT); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
+	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
 	while (IsDataBufferRefershing){ //Wait until IsDataBufferRefershing = 0
 		;
 	}
@@ -99,11 +99,12 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	IsDataReading = 0; //End data reading
 	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
 	int i;
+	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
 	IsDataBufferRefershing = 0; //End DataBuffer refreshing
-	enable_irq(DAC_INT); //Enable DAC_INT (XEINT28)
+	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return iResult;
 }
 
@@ -156,15 +157,10 @@ static struct file_operations interrupt_demo_driver_file_operations = {
 };
 
 /* Interrupt Handlers */
-//Interrupt handler of PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
-static irqreturn_t eint25_interrupt(int iIrq, void * lpDevId){
-	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT25_NAME, __FUNCTION__, __LINE__);
-	return IRQ_HANDLED;
-}
-//Interrupt handler of DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
-static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
-	disable_irq_nosync(DAC_INT); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
-	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT28_NAME, __FUNCTION__, __LINE__);
+//Interrupt handler of S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
+static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
+	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT1_NAME, __FUNCTION__, __LINE__);
+	disable_irq_nosync(S_INT); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
 	//Sample data generation code
 	while (IsDataReading){ //Wait until IsDataReading = 0
 		;
@@ -175,17 +171,22 @@ static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
 	IsDataBufferRefershing = 0; //End DataBuffer refreshing
-	enable_irq(DAC_INT); //enable_irq() before returning
-	return IRQ_HANDLED;
-}
-//Interrupt handler of S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
-static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
-	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT1_NAME, __FUNCTION__, __LINE__);
+	enable_irq(S_INT); //enable_irq() before returning
 	return IRQ_HANDLED;
 }
 //Interrupt handler of DP_INT/XEINT20_BAK, Interrupt ID XEINT20, Label EXYNOS4_GPX2(4)
 static irqreturn_t eint20_interrupt(int iIrq, void * lpDevId){
 	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT20_NAME, __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
+static irqreturn_t eint25_interrupt(int iIrq, void * lpDevId){
+	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT25_NAME, __FUNCTION__, __LINE__);
+	return IRQ_HANDLED;
+}
+//Interrupt handler of DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
+static irqreturn_t eint28_interrupt(int iIrq, void * lpDevId){
+	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT28_NAME, __FUNCTION__, __LINE__);
 	return IRQ_HANDLED;
 }
 
@@ -245,21 +246,21 @@ static int interrupt_demo_resume(struct platform_device * lpPlatformDevice){
 
 /* IOControl Handlers */
 void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoControlParameters){
-	disable_irq(DAC_INT); //Disable DAC_INT (XEINT28) to avoid unwanted DataBuffer refresh
+	disable_irq(S_INT); //Disable DAC_INT (XEINT1) to avoid unwanted DataBuffer refresh
 	switch (iIoControlCommand){
 		case CTL_DISABLE_IRQ:
 			switch (lpIoControlParameters){
-				case PW_INT:
-					disable_irq(PW_INT);
-					break;
-				case DAC_INT:
-					disable_irq(DAC_INT);
-					break;
 				case S_INT:
 					disable_irq(S_INT);
 					break;
 				case DP_INT:
 					disable_irq(DP_INT);
+					break;
+				case PW_INT:
+					disable_irq(PW_INT);
+					break;
+				case DAC_INT:
+					disable_irq(DAC_INT);
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 				case KEY_HOME:
@@ -285,17 +286,17 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			break;
 		case CTL_ENABLE_IRQ:
 			switch (lpIoControlParameters){
-				case PW_INT:
-					enable_irq(PW_INT);
-					break;
-				case DAC_INT:
-					enable_irq(DAC_INT);
-					break;
 				case S_INT:
 					enable_irq(S_INT);
 					break;
 				case DP_INT:
 					enable_irq(DP_INT);
+					break;
+				case PW_INT:
+					enable_irq(PW_INT);
+					break;
+				case DAC_INT:
+					enable_irq(DAC_INT);
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 				case KEY_HOME:
@@ -350,7 +351,7 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			
 			break;
 	}
-	enable_irq(DAC_INT); //Enable DAC_INT (XEINT28)
+	enable_irq(S_INT); //Enable S_INT (XEINT1)
 }
 
 /* Init & Exit functions */
@@ -389,36 +390,6 @@ static int __init interrupt_demo_init(void){
 	DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
 	//Use request_irq() to register interrupts here
 	int iIrqResult;
-	//Request interrupt PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
-	iIrqResult=gpio_request(PW_INT_LABEL, XEINT25_NAME);
-	if (0==iIrqResult){
-		s3c_gpio_cfgpin(PW_INT_LABEL, S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(PW_INT_LABEL, S3C_GPIO_PULL_UP);
-		gpio_free(PW_INT_LABEL);
-		
-		iIrqResult=request_irq(PW_INT, eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, NULL);
-		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", PW_INT, iIrqResult);
-		}
-	}
-	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", PW_INT_LABEL, iIrqResult);
-	}
-	//Request interrupt DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
-	iIrqResult=gpio_request(DAC_INT_LABEL, XEINT28_NAME);
-	if (0==iIrqResult){
-		s3c_gpio_cfgpin(DAC_INT_LABEL, S3C_GPIO_SFN(0xF));
-		s3c_gpio_setpull(DAC_INT_LABEL, S3C_GPIO_PULL_UP);
-		gpio_free(DAC_INT_LABEL);
-		
-		iIrqResult=request_irq(DAC_INT, eint28_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT28_NAME, NULL);
-		if (iIrqResult<0) {
-			WRNPRINT("Request IRQ %d failed with return code %d.\n", DAC_INT, iIrqResult);
-		}
-	}
-	else{
-		WRNPRINT("Request GPIO %d failed with return code %d.\n", DAC_INT_LABEL, iIrqResult);
-	}
 	//Request interrupt S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
 	iIrqResult=gpio_request(S_INT_LABEL, XEINT1_NAME);
 	if (0==iIrqResult){
@@ -448,6 +419,36 @@ static int __init interrupt_demo_init(void){
 	}
 	else{
 		WRNPRINT("Request GPIO %d failed with return code %d.\n", DP_INT_LABEL, iIrqResult);
+	}
+	//Request interrupt PW_INT/GM_INT2, Interrupt ID XEINT25, Label EXYNOS4_GPX3(1)
+	iIrqResult=gpio_request(PW_INT_LABEL, XEINT25_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(PW_INT_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(PW_INT_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(PW_INT_LABEL);
+		
+		iIrqResult=request_irq(PW_INT, eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", PW_INT, iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", PW_INT_LABEL, iIrqResult);
+	}
+	//Request interrupt DAC_INT/COMPASS_RDY, Interrupt ID XEINT28, Label EXYNOS4_GPX3(4)
+	iIrqResult=gpio_request(DAC_INT_LABEL, XEINT28_NAME);
+	if (0==iIrqResult){
+		s3c_gpio_cfgpin(DAC_INT_LABEL, S3C_GPIO_SFN(0xF));
+		s3c_gpio_setpull(DAC_INT_LABEL, S3C_GPIO_PULL_UP);
+		gpio_free(DAC_INT_LABEL);
+		
+		iIrqResult=request_irq(DAC_INT, eint28_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT28_NAME, NULL);
+		if (iIrqResult<0) {
+			WRNPRINT("Request IRQ %d failed with return code %d.\n", DAC_INT, iIrqResult);
+		}
+	}
+	else{
+		WRNPRINT("Request GPIO %d failed with return code %d.\n", DAC_INT_LABEL, iIrqResult);
 	}
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 	WRNPRINT("You have enabled on-board GPIO keys\' interrupts. These interrupts need disabling \'GPIO Buttons\' driver in Kernel-Config\'s \'Device Drivers -> Input device support -> Keyboards\' menu to work. If you did so, GPIO keypads may not be available.\n");
@@ -544,10 +545,10 @@ static void __exit interrupt_demo_exit(void){
 	cdev_del(&cdevDriver);
 	unregister_chrdev_region(MKDEV(iMajorDeviceNumber, 0), 1);
 	//Use free_irq() to unregister interrupts here
-	free_irq(PW_INT, NULL);
-	free_irq(DAC_INT, NULL);
 	free_irq(S_INT, NULL);
 	free_irq(DP_INT, NULL);
+	free_irq(PW_INT, NULL);
+	free_irq(DAC_INT, NULL);
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 	free_irq(KEY_HOME, NULL);
 	free_irq(KEY_BACK, NULL);
