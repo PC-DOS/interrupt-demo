@@ -251,35 +251,46 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			switch (lpIoControlParameters){
 				case S_INT:
 					disable_irq(S_INT);
+					return;
 					break;
 				case DP_INT:
 					disable_irq(DP_INT);
+					return;
 					break;
 				case PW_INT:
 					disable_irq(PW_INT);
+					return;
 					break;
 				case DAC_INT:
 					disable_irq(DAC_INT);
+					return;
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 				case KEY_HOME:
 					disable_irq(KEY_HOME);
+					return;
 					break;
 				case KEY_BACK:
 					disable_irq(KEY_BACK);
+					return;
 					break;
 				case KEY_SLEEP:
 					disable_irq(KEY_SLEEP);
+					return;
 					break;
 				case KEY_VOLUP:
 					disable_irq(KEY_VOLUP);
+					return;
 					break;
 				case KEY_VOLDOWN:
 					disable_irq(KEY_VOLDOWN);
+					return;
 					break;
 #endif
 				default:
-					//Don't disable any Interrupts
+					//Disables S_INT by default
+					disable_irq(S_INT);
+					return;
 					break;
 			}
 			break;
@@ -287,35 +298,46 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			switch (lpIoControlParameters){
 				case S_INT:
 					enable_irq(S_INT);
+					return;
 					break;
 				case DP_INT:
 					enable_irq(DP_INT);
+					return;
 					break;
 				case PW_INT:
 					enable_irq(PW_INT);
+					return;
 					break;
 				case DAC_INT:
 					enable_irq(DAC_INT);
+					return;
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 				case KEY_HOME:
 					enable_irq(KEY_HOME);
+					return;
 					break;
 				case KEY_BACK:
 					enable_irq(KEY_BACK);
+					return;
 					break;
 				case KEY_SLEEP:
 					enable_irq(KEY_SLEEP);
+					return;
 					break;
 				case KEY_VOLUP:
 					enable_irq(KEY_VOLUP);
+					return;
 					break;
 				case KEY_VOLDOWN:
 					enable_irq(KEY_VOLDOWN);
+					return;
 					break;
 #endif
 				default:
-					//Don't enable any Interrupts
+					//Enables S_INT by default
+					enable_irq(S_INT);
+					return;
 					break;
 			}
 			break;
@@ -351,6 +373,7 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			break;
 	}
 	enable_irq(S_INT); //Enable S_INT (XEINT1)
+	return;
 }
 
 /* Init & Exit functions */
