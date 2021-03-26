@@ -2,6 +2,7 @@
  *
  * Some small math functions.
  */
+#include "MathFunctions.h"
  
 inline long GetMin(long iNum1, long iNum2){
 	return iNum1<iNum2 ? iNum1 : iNum2;
