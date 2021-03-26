@@ -4,8 +4,8 @@
  * 
  * We use the following Interrupts:
  * || Private Definition || Pin Definition || INT ID (XEINT) || Label           || Meaning                                                                            ||
- * || S_INT              || XEINT1_BAK     || XEINT1         || EXYNOS4_GPX0(1) || A sampling sequence has finished, we should read data from device. Original EINT1. ||
- * || DP_INT             || XEINT20_BAK    || XEINT20        || EXYNOS4_GPX2(4) || Triggers 50 times per second (Hz), wakes up the UserApp. Original EINT4.           ||
+ * || S_INT              || XEINT1_BAK     || XEINT1         || EXYNOS4_GPX0(1) || A sampling sequence has finished, we should read data from device. Original EINT4. ||
+ * || DP_INT             || XEINT20_BAK    || XEINT20        || EXYNOS4_GPX2(4) || Triggers 50 times per second (Hz), wakes up the UserApp. Original EINT1.           ||
  * || DAC_INT            || COMPASS_RDY    || XEINT28        || EXYNOS4_GPX3(4) || Digital-Analog Converter interrupt. Original EINT6.                                ||
  * || PW_INT             || GM_INT2        || XEINT25        || EXYNOS4_GPX3(1) || Power-Key interrupt. Original EINT16.                                              ||
  * || KEY_HOME           || UART_RING      || XEINT9         || EXYNOS4_GPX1(1) || iTop-4412 on-board Home Key.                                                       ||
