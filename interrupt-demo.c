@@ -37,6 +37,8 @@
 /* Interrupt-related header files */
 #include <linux/interrupt.h>
 #include <linux/irq.h>
+/* Spin-Lock, for we need it in Interrupt Handlers, we can't use Mutex */
+#include <linux/spinlock.h> 
 /* Library to generate random numbers */
 #include <linux/random.h>
 /* Local header files */
@@ -47,9 +49,7 @@ struct class *clsDriver; //Device node
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
 static struct cdev cdevDriver; //cdev structure
 
-int IsDataReading = 0; //Marks if we are reading data from the Driver File
-int IsDataWriting = 0; //Marks if we are writing data to the Driver File
-int IsDataBufferRefershing = 0; //Marks if DataBuffer is refreshing
+spinlock_t spnlkDataBufferLocker; //Spin-Lock to protect arrDataBuffer
 
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
@@ -87,22 +87,17 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	//DBGPRINT("Reading data from device file...\n");
 	//Sample data reading code
 	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
-	while (IsDataBufferRefershing){ //Wait until IsDataBufferRefershing = 0
-		;
-	}
+	spin_lock(&spnlkDataBufferLocker);
 	ssize_t iResult;
-	IsDataReading = 1; //Start to read data
 	iResult=copy_to_user(lpszBuffer, arrDataBuffer, GetMin(sizeof(arrDataBuffer),iSize));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to user RAM space.\n", iResult);
 	}
-	IsDataReading = 0; //End data reading
-	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
 	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
-	IsDataBufferRefershing = 0; //End DataBuffer refreshing
+	spin_unlock(&spnlkDataBufferLocker);
 	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return iResult;
 }
@@ -161,15 +156,12 @@ static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
 	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT1_NAME, __FUNCTION__, __LINE__);
 	disable_irq_nosync(S_INT); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
 	//Sample data generation code
-	while (IsDataReading){ //Wait until IsDataReading = 0
-		;
-	}
-	IsDataBufferRefershing = 1; //Start to refresh DataBuffer
+	spin_lock(&spnlkDataBufferLocker);
 	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
-	IsDataBufferRefershing = 0; //End DataBuffer refreshing
+	spin_unlock(&spnlkDataBufferLocker);
 	enable_irq(S_INT); //enable_irq() before returning
 	return IRQ_HANDLED;
 }
@@ -410,6 +402,8 @@ static int __init interrupt_demo_init(void){
 	}
 	interrupt_demo_setup_cdev(&cdevDriver, 0, &interrupt_demo_driver_file_operations);
 	DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
+	//Initialize Spin-Lock
+	spin_lock_init(&spnlkDataBufferLocker);
 	//Use request_irq() to register interrupts here
 	int iIrqResult;
 	//Request interrupt S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
