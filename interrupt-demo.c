@@ -414,7 +414,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(S_INT_LABEL);
 		
 		iIrqResult=request_irq(S_INT, eint1_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT1_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", S_INT, iIrqResult);
 		}
 	}
@@ -429,7 +429,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(DP_INT_LABEL);
 		
 		iIrqResult=request_irq(DP_INT, eint20_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT20_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", DP_INT, iIrqResult);
 		}
 	}
@@ -444,7 +444,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(PW_INT_LABEL);
 		
 		iIrqResult=request_irq(PW_INT, eint25_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT25_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", PW_INT, iIrqResult);
 		}
 	}
@@ -459,7 +459,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(DAC_INT_LABEL);
 		
 		iIrqResult=request_irq(DAC_INT, eint28_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT28_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", DAC_INT, iIrqResult);
 		}
 	}
@@ -476,7 +476,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(KEY_HOME_LABEL);
 		
 		iIrqResult=request_irq(KEY_HOME, eint9_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT9_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_HOME, iIrqResult);
 		}
 	}
@@ -491,7 +491,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(KEY_BACK_LABEL);
 		
 		iIrqResult=request_irq(KEY_BACK, eint10_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT10_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_BACK, iIrqResult);
 		}
 	}
@@ -506,7 +506,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(KEY_SLEEP_LABEL);
 		
 		iIrqResult=request_irq(KEY_SLEEP, eint27_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT27_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_SLEEP, iIrqResult);
 		}
 	}
@@ -521,7 +521,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(KEY_VOLUP_LABEL);
 		
 		iIrqResult=request_irq(KEY_VOLUP, eint17_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT17_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_VOLUP, iIrqResult);
 		}
 	}
@@ -536,7 +536,7 @@ static int __init interrupt_demo_init(void){
 		gpio_free(KEY_VOLDOWN_LABEL);
 		
 		iIrqResult=request_irq(KEY_VOLDOWN, eint16_interrupt, IRQ_TYPE_EDGE_FALLING, XEINT16_NAME, NULL);
-		if (iIrqResult<0) {
+		if (iIrqResult<0){
 			WRNPRINT("Request IRQ %d failed with return code %d.\n", KEY_VOLDOWN, iIrqResult);
 		}
 	}
