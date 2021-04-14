@@ -109,7 +109,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
  * The first one (arrCommandBuffer[0]) contains commands (iIoControlCommand);
  * The second one (arrCommandBuffer[1]) contains arguments (lpIoControlParameters);
  */
-ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize,loff_t * lpOffset){
+ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
 	DBGPRINT("Wrtiting data to device file...\n");
 	ssize_t iResult;
 	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, GetMin(CTL_COMMAND_BUFFER_SIZE,iSize));
