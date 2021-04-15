@@ -25,8 +25,8 @@
 #define IS_GPIO_INTERRUPT_DEBUG //Comment this when using GPIO keypad
 #define XEINT1_NAME "S_INT__XEINT1_BAK__XEINT1"
 #define XEINT20_NAME "DP_INT__XEINT20_BAK__XEINT20"
-#define XEINT28_NAME "DAC_INT__COMPASS_RDY__XEINT28"
 #define XEINT25_NAME "PW_INT__GM_INT2__XEINT25"
+#define XEINT28_NAME "DAC_INT__COMPASS_RDY__XEINT28"
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 #define XEINT9_NAME "KEY_HOME__UART_RING__XEINT9"
 #define XEINT10_NAME "KEY_BACK__SIM_DET__XEINT10"
@@ -143,6 +143,20 @@
 #define CTL_RESERVED_1A			0x1a //Reserved
 #define CTL_RESERVED_1C			0x1c //Reserved
 #define CTL_RESERVED_1E			0x1e //Reserved
+
+//Interrupt Names for CTL_XXXX_IRQ Commands
+#define CTL_IRQ_NAME_NULL			0x00
+#define CTL_IRQ_NAME_S_INT			0x01
+#define CTL_IRQ_NAME_DP_INT			0x02
+#define CTL_IRQ_NAME_PW_INT			0x03
+#define CTL_IRQ_NAME_DAC_INT		0x04
+#ifdef IS_GPIO_INTERRUPT_DEBUG
+#define CTL_IRQ_NAME_KEY_HOME		0x11
+#define CTL_IRQ_NAME_KEY_BACK		0x12
+#define CTL_IRQ_NAME_KEY_SLEEP		0x13
+#define CTL_IRQ_NAME_KEY_VOLUP		0x14
+#define CTL_IRQ_NAME_KEY_VOLDOWN	0x14
+#endif
 
 //Function Signatures
 void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoControlParameters);

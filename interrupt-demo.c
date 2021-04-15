@@ -6,8 +6,8 @@
  * || Private Definition || Pin Definition || INT ID (XEINT) || Label           || Meaning                                                                            ||
  * || S_INT              || XEINT1_BAK     || XEINT1         || EXYNOS4_GPX0(1) || A sampling sequence has finished, we should read data from device. Original EINT4. ||
  * || DP_INT             || XEINT20_BAK    || XEINT20        || EXYNOS4_GPX2(4) || Triggers 50 times per second (Hz), wakes up the UserApp. Original EINT1.           ||
- * || DAC_INT            || COMPASS_RDY    || XEINT28        || EXYNOS4_GPX3(4) || Digital-Analog Converter interrupt. Original EINT6.                                ||
  * || PW_INT             || GM_INT2        || XEINT25        || EXYNOS4_GPX3(1) || Power-Key interrupt. Original EINT16.                                              ||
+ * || DAC_INT            || COMPASS_RDY    || XEINT28        || EXYNOS4_GPX3(4) || Digital-Analog Converter interrupt. Original EINT6.                                ||
  * || KEY_HOME           || UART_RING      || XEINT9         || EXYNOS4_GPX1(1) || iTop-4412 on-board Home Key.                                                       ||
  * || KEY_BACK           || SIM_DET        || XEINT10        || EXYNOS4_GPX1(2) || iTop-4412 on-board Back Key.                                                       ||
  * || KEY_SLEEP          || GYRO_INT       || XEINT27        || EXYNOS4_GPX3(3) || iTop-4412 on-board Sleep Key.                                                      ||
@@ -241,40 +241,40 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 	switch (iIoControlCommand){
 		case CTL_DISABLE_IRQ:
 			switch (lpIoControlParameters){
-				case S_INT:
+				case CTL_IRQ_NAME_S_INT:
 					disable_irq(S_INT);
 					return;
 					break;
-				case DP_INT:
+				case CTL_IRQ_NAME_DP_INT:
 					disable_irq(DP_INT);
 					return;
 					break;
-				case PW_INT:
+				case CTL_IRQ_NAME_PW_INT:
 					disable_irq(PW_INT);
 					return;
 					break;
-				case DAC_INT:
+				case CTL_IRQ_NAME_DAC_INT:
 					disable_irq(DAC_INT);
 					return;
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
-				case KEY_HOME:
+				case CTL_IRQ_NAME_KEY_HOME:
 					disable_irq(KEY_HOME);
 					return;
 					break;
-				case KEY_BACK:
+				case CTL_IRQ_NAME_KEY_BACK:
 					disable_irq(KEY_BACK);
 					return;
 					break;
-				case KEY_SLEEP:
+				case CTL_IRQ_NAME_KEY_SLEEP:
 					disable_irq(KEY_SLEEP);
 					return;
 					break;
-				case KEY_VOLUP:
+				case CTL_IRQ_NAME_KEY_VOLUP:
 					disable_irq(KEY_VOLUP);
 					return;
 					break;
-				case KEY_VOLDOWN:
+				case CTL_IRQ_NAME_KEY_VOLDOWN:
 					disable_irq(KEY_VOLDOWN);
 					return;
 					break;
@@ -288,44 +288,45 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			break;
 		case CTL_ENABLE_IRQ:
 			switch (lpIoControlParameters){
-				case S_INT:
+				case CTL_IRQ_NAME_S_INT:
 					enable_irq(S_INT);
 					return;
 					break;
-				case DP_INT:
+				case CTL_IRQ_NAME_DP_INT:
 					enable_irq(DP_INT);
 					return;
 					break;
-				case PW_INT:
+				case CTL_IRQ_NAME_PW_INT:
 					enable_irq(PW_INT);
 					return;
 					break;
-				case DAC_INT:
+				case CTL_IRQ_NAME_DAC_INT:
 					enable_irq(DAC_INT);
 					return;
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
-				case KEY_HOME:
+				case CTL_IRQ_NAME_KEY_HOME:
 					enable_irq(KEY_HOME);
 					return;
 					break;
-				case KEY_BACK:
+				case CTL_IRQ_NAME_KEY_BACK:
 					enable_irq(KEY_BACK);
 					return;
 					break;
-				case KEY_SLEEP:
+				case CTL_IRQ_NAME_KEY_SLEEP:
 					enable_irq(KEY_SLEEP);
 					return;
 					break;
-				case KEY_VOLUP:
+				case CTL_IRQ_NAME_KEY_VOLUP:
 					enable_irq(KEY_VOLUP);
 					return;
 					break;
-				case KEY_VOLDOWN:
+				case CTL_IRQ_NAME_KEY_VOLDOWN:
 					enable_irq(KEY_VOLDOWN);
 					return;
 					break;
 #endif
+				case CTL_IRQ_NAME_NULL:
 				default:
 					//Enables S_INT by default
 					enable_irq(S_INT);
