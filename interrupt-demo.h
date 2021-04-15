@@ -155,7 +155,7 @@
 #define CTL_IRQ_NAME_KEY_BACK		0x12
 #define CTL_IRQ_NAME_KEY_SLEEP		0x13
 #define CTL_IRQ_NAME_KEY_VOLUP		0x14
-#define CTL_IRQ_NAME_KEY_VOLDOWN	0x14
+#define CTL_IRQ_NAME_KEY_VOLDOWN	0x15
 #endif
 
 //Function Signatures
