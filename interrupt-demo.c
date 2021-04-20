@@ -50,6 +50,7 @@ static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automati
 static struct cdev cdevDriver; //cdev structure
 
 spinlock_t spnlkDataBufferLocker; //Spin-Lock to protect arrDataBuffer
+spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
 
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
@@ -111,6 +112,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
  */
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
 	DBGPRINT("Wrtiting data to device file...\n");
+	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
 	ssize_t iResult;
 	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, GetMin(CTL_COMMAND_BUFFER_SIZE,iSize));
 	if (iResult){
@@ -121,12 +123,15 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
 	unsigned long lpIoControlParameters = arrCommandBuffer[1];
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
+	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
 	return iResult;
 }
  
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
+	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
 	return 0;
 }
 
@@ -237,6 +242,7 @@ static int interrupt_demo_resume(struct platform_device * lpPlatformDevice){
 
 /* IOControl Handlers */
 void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoControlParameters){
+	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
 	switch (iIoControlCommand){
 		case CTL_DISABLE_IRQ:
 			switch (lpIoControlParameters){
@@ -246,36 +252,28 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 					break;
 				case CTL_IRQ_NAME_DP_INT:
 					disable_irq(DP_INT);
-					return;
 					break;
 				case CTL_IRQ_NAME_PW_INT:
 					disable_irq(PW_INT);
-					return;
 					break;
 				case CTL_IRQ_NAME_DAC_INT:
 					disable_irq(DAC_INT);
-					return;
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 				case CTL_IRQ_NAME_KEY_HOME:
 					disable_irq(KEY_HOME);
-					return;
 					break;
 				case CTL_IRQ_NAME_KEY_BACK:
 					disable_irq(KEY_BACK);
-					return;
 					break;
 				case CTL_IRQ_NAME_KEY_SLEEP:
 					disable_irq(KEY_SLEEP);
-					return;
 					break;
 				case CTL_IRQ_NAME_KEY_VOLUP:
 					disable_irq(KEY_VOLUP);
-					return;
 					break;
 				case CTL_IRQ_NAME_KEY_VOLDOWN:
 					disable_irq(KEY_VOLDOWN);
-					return;
 					break;
 #endif
 				default:
@@ -293,36 +291,28 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 					break;
 				case CTL_IRQ_NAME_DP_INT:
 					enable_irq(DP_INT);
-					return;
 					break;
 				case CTL_IRQ_NAME_PW_INT:
 					enable_irq(PW_INT);
-					return;
 					break;
 				case CTL_IRQ_NAME_DAC_INT:
 					enable_irq(DAC_INT);
-					return;
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 				case CTL_IRQ_NAME_KEY_HOME:
 					enable_irq(KEY_HOME);
-					return;
 					break;
 				case CTL_IRQ_NAME_KEY_BACK:
 					enable_irq(KEY_BACK);
-					return;
 					break;
 				case CTL_IRQ_NAME_KEY_SLEEP:
 					enable_irq(KEY_SLEEP);
-					return;
 					break;
 				case CTL_IRQ_NAME_KEY_VOLUP:
 					enable_irq(KEY_VOLUP);
-					return;
 					break;
 				case CTL_IRQ_NAME_KEY_VOLDOWN:
 					enable_irq(KEY_VOLDOWN);
-					return;
 					break;
 #endif
 				case CTL_IRQ_NAME_NULL:
@@ -345,13 +335,16 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 		case CTL_SET_RATE:
 			
 			break;
-		case CTL_SET_SCALE_HIGH_BYTE:
+		case CTL_SET_COMPRESS_COUNT_HIGH_BYTE:
 			
 			break;
-		case CTL_SET_SCALE_LOW_BYTE:
+		case CTL_SET_COMPRESS_COUNT_LOW_BYTE:
 			
 			break;
-		case CTL_SET_SCALE_INT:
+		case CTL_SET_COMPRESS_STEP_INT_PART:
+			
+			break;
+		case CTL_SET_COMPRESS_STEP_FLOAT_PART:
 			
 			break;
 		case CTL_SET_GAIN:
@@ -364,6 +357,7 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			
 			break;
 	}
+	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return;
 }
 
@@ -403,6 +397,7 @@ static int __init interrupt_demo_init(void){
 	DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
 	//Initialize Spin-Lock
 	spin_lock_init(&spnlkDataBufferLocker);
+	spin_lock_init(&spnlkIoCtlLocker);
 	//Use request_irq() to register interrupts here
 	int iIrqResult;
 	//Request interrupt S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)

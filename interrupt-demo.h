@@ -124,25 +124,25 @@
 #define SET_VAR_1C			0x1c
 #define SET_VAR_1E			0x1e
 */
-#define CTL_DISABLE_IRQ			0x00 //Disable IRQ
-#define CTL_ENABLE_IRQ			0x01 //Enable IRQ
-#define CTL_SET_USER_APP_PID	0x02 //Set the PID (Process ID) of user app
-#define CTL_SET_DELAY_HIGH_BYTE	0x03 //Set Delay (High Byte)
-#define CTL_SET_DELAY_LOW_BYTE	0x04 //Set Delay (Low Byte)
-#define CTL_SET_RATE			0x05 //Set Rate
-#define CTL_SET_SCALE_HIGH_BYTE	0x06 //Set Scale (Compress Rate) (High Byte)
-#define CTL_SET_SCALE_LOW_BYTE	0x07 //Set Scale (Compress Rate) (Low Byte)
-#define CTL_SET_SCALE_INT		0x08 //Set Sacle in INT
-#define CTL_SET_SCALE_FLOAT		0x09 //Set Sacle in FLOAT
-#define CTL_SET_GAIN			0x0a //Set Gain
-#define CTL_SET_CHANNEL			0x0c //Set Channel
-#define CTL_RESERVED_12			0x12 //Reserved
-#define CTL_RESERVED_14			0x14 //Reserved
-#define CTL_RESERVED_16			0x16 //Reserved
-#define CTL_RESERVED_18			0x18 //Reserved
-#define CTL_RESERVED_1A			0x1a //Reserved
-#define CTL_RESERVED_1C			0x1c //Reserved
-#define CTL_RESERVED_1E			0x1e //Reserved
+#define CTL_DISABLE_IRQ							0x00 //Disable IRQ
+#define CTL_ENABLE_IRQ							0x01 //Enable IRQ
+#define CTL_SET_USER_APP_PID					0x02 //Set the PID (Process ID) of user app
+#define CTL_SET_DELAY_HIGH_BYTE					0x03 //Set Delay (High Byte)
+#define CTL_SET_DELAY_LOW_BYTE					0x04 //Set Delay (Low Byte)
+#define CTL_SET_RATE							0x05 //Set Rate
+#define CTL_SET_COMPRESS_COUNT_HIGH_BYTE		0x06 //Set Compress Count (How many points are merged), High Byte
+#define CTL_SET_COMPRESS_COUNT_LOW_BYTE			0x07 //Set Compress Count (How many points are merged), Low Byte
+#define CTL_SET_COMPRESS_STEP_INT_PART			0x08 //Set Compress Step's integer part
+#define CTL_SET_COMPRESS_STEP_FLOAT_PART		0x09 //Set Compress Step's decimal part
+#define CTL_SET_GAIN							0x0a //Set Gain
+#define CTL_SET_CHANNEL							0x0c //Set Channel
+#define CTL_RESERVED_12							0x12 //Reserved
+#define CTL_RESERVED_14							0x14 //Reserved
+#define CTL_RESERVED_16							0x16 //Reserved
+#define CTL_RESERVED_18							0x18 //Reserved
+#define CTL_RESERVED_1A							0x1a //Reserved
+#define CTL_RESERVED_1C							0x1c //Reserved
+#define CTL_RESERVED_1E							0x1e //Reserved
 
 //Interrupt Names for CTL_XXXX_IRQ Commands
 #define CTL_IRQ_NAME_NULL			0x00
