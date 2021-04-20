@@ -377,9 +377,7 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			
 			break;
 	}
-	if (!IsSINTDisabledByUser){
-		enable_irq(S_INT); //Enable S_INT (XEINT1)
-	}
+	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return;
 }
 
