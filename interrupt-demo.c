@@ -237,7 +237,6 @@ static int interrupt_demo_resume(struct platform_device * lpPlatformDevice){
 
 /* IOControl Handlers */
 void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoControlParameters){
-	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
 	switch (iIoControlCommand){
 		case CTL_DISABLE_IRQ:
 			switch (lpIoControlParameters){
@@ -365,7 +364,6 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 			
 			break;
 	}
-	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return;
 }
 
