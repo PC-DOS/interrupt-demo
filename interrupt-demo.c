@@ -14,6 +14,7 @@
  * || KEY_VOL+           || KP_ROW1        || XEINT17        || EXYNOS4_GPX2(1) || iTop-4412 on-board Vol+ Key.                                                       ||
  * || KEY_VOL-           || KP_ROW0        || XEINT16        || EXYNOS4_GPX2(0) || iTop-4412 on-board Vol- Key.                                                       ||
  * * KEY_**** are only used in INTERRUPT_DEBUG mode, comment #define IS_GPIO_INTERRUPT_DEBUG in header file to disable this mode.
+ * The disabling and enabling of IRQs are nested, the OS uses a variable to store the depth of disabling. Thus, you don't need other flags to mark IRQs' status.
  *
  */
 
@@ -54,19 +55,6 @@ spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
 
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
-
-//Marks of Interrupt Status
-int IsSINTDisabledByUser = 0;
-int IsDPINTDisabledByUser = 0;
-int IsPWINTDisabledByUser = 0;
-int IsDACINTDisabledByUser = 0;
-#ifdef IS_GPIO_INTERRUPT_DEBUG
-int IsKEYHOMEDisabledByUser = 0;
-int IsKEYBACKDisabledByUser = 0;
-int IsKEYSLEEPDisabledByUser = 0;
-int IsKEYVOLUPDisabledByUser = 0;
-int IsKEYVOLDOWNDisabledByUser = 0;
-#endif
 
 /* Character Driver related functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
@@ -264,55 +252,45 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 				case CTL_IRQ_NAME_S_INT:
 					DBGPRINT("Disabling IRQ: S_INT.\n");
 					disable_irq(S_INT);
-					IsSINTDisabledByUser=1;
 					break;
 				case CTL_IRQ_NAME_DP_INT:
 					DBGPRINT("Disabling IRQ: DP_INT.\n");
 					disable_irq(DP_INT);
-					IsDPINTDisabledByUser=1;
 					break;
 				case CTL_IRQ_NAME_PW_INT:
 					DBGPRINT("Disabling IRQ: PW_INT.\n");
 					disable_irq(PW_INT);
-					IsPWINTDisabledByUser=1;
 					break;
 				case CTL_IRQ_NAME_DAC_INT:
 					DBGPRINT("Disabling IRQ: DAC_INT.\n");
 					disable_irq(DAC_INT);
-					IsDACINTDisabledByUser=1;
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 				case CTL_IRQ_NAME_KEY_HOME:
 					DBGPRINT("Disabling IRQ: KEY_HOME.\n");
 					disable_irq(KEY_HOME);
-					IsKEYHOMEDisabledByUser=1;
 					break;
 				case CTL_IRQ_NAME_KEY_BACK:
 					DBGPRINT("Disabling IRQ: KEY_BACK.\n");
 					disable_irq(KEY_BACK);
-					IsKEYBACKDisabledByUser=1;
 					break;
 				case CTL_IRQ_NAME_KEY_SLEEP:
 					DBGPRINT("Disabling IRQ: KEY_SLEEP.\n");
 					disable_irq(KEY_SLEEP);
-					IsKEYSLEEPDisabledByUser=1;
 					break;
 				case CTL_IRQ_NAME_KEY_VOLUP:
 					DBGPRINT("Disabling IRQ: KEY_VOLUP.\n");
 					disable_irq(KEY_VOLUP);
-					IsKEYVOLUPDisabledByUser=1;
 					break;
 				case CTL_IRQ_NAME_KEY_VOLDOWN:
 					DBGPRINT("Disabling IRQ: KEY_VOLDOWN.\n");
 					disable_irq(KEY_VOLDOWN);
-					IsKEYVOLDOWNDisabledByUser=1;
 					break;
 #endif
 				default:
 					//Disables S_INT by default
 					DBGPRINT("Disabling IRQ: S_INT.\n");
 					disable_irq(S_INT);
-					IsSINTDisabledByUser=1;
 					break;
 			}
 			break;
@@ -323,55 +301,45 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 				case CTL_IRQ_NAME_S_INT:
 					DBGPRINT("Enabling IRQ: S_INT.\n");
 					enable_irq(S_INT);
-					IsSINTDisabledByUser=0;
 					break;
 				case CTL_IRQ_NAME_DP_INT:
 					DBGPRINT("Enabling IRQ: DP_INT.\n");
 					enable_irq(DP_INT);
-					IsDPINTDisabledByUser=0;
 					break;
 				case CTL_IRQ_NAME_PW_INT:
 					DBGPRINT("Enabling IRQ: PW_INT.\n");
 					enable_irq(PW_INT);
-					IsPWINTDisabledByUser=0;
 					break;
 				case CTL_IRQ_NAME_DAC_INT:
 					DBGPRINT("Enabling IRQ: DAC_INT.\n");
 					enable_irq(DAC_INT);
-					IsDACINTDisabledByUser=0;
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
 				case CTL_IRQ_NAME_KEY_HOME:
 					DBGPRINT("Enabling IRQ: KEY_HOME.\n");
 					enable_irq(KEY_HOME);
-					IsKEYHOMEDisabledByUser=0;
 					break;
 				case CTL_IRQ_NAME_KEY_BACK:
 					DBGPRINT("Enabling IRQ: KEY_BACK.\n");
 					enable_irq(KEY_BACK);
-					IsKEYBACKDisabledByUser=0;
 					break;
 				case CTL_IRQ_NAME_KEY_SLEEP:
 					DBGPRINT("Enabling IRQ: KEY_SLEEP.\n");
 					enable_irq(KEY_SLEEP);
-					IsKEYSLEEPDisabledByUser=0;
 					break;
 				case CTL_IRQ_NAME_KEY_VOLUP:
 					DBGPRINT("Enabling IRQ: KEY_VOLUP.\n");
 					enable_irq(KEY_VOLUP);
-					IsKEYVOLUPDisabledByUser=0;
 					break;
 				case CTL_IRQ_NAME_KEY_VOLDOWN:
 					DBGPRINT("Enabling IRQ: KEY_VOLDOWN.\n");
 					enable_irq(KEY_VOLDOWN);
-					IsKEYVOLDOWNDisabledByUser=0;
 					break;
 #endif
 				default:
 					//Enables S_INT by default
 					DBGPRINT("Enabling IRQ: S_INT.\n");
 					enable_irq(S_INT);
-					return;
 					break;
 			}
 			break;
