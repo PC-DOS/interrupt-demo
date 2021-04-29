@@ -128,6 +128,10 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
 	return iResult;
 }
  
+/* interrupt_demo_unlocked_ioctl()
+ * 
+ * This function processes IO control commands and parameters.
+ */
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
@@ -136,12 +140,29 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
 	return 0;
 }
 
+/*
+/* interrupt_demo_compact_ioctl()
+ * 
+ * This function processes IO control commands and parameters.
+ * compact_ioctl is designed for 64-bit drivers to process 32-bit user application's ioctl() calls. This driver is currently designed for ARM32 (AArch32) platform.
+static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
+	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
+	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	return 0;
+}
+*/
+
 /* For kernels before 2.6.36
  * 
  * In newer kernels, use unlocked_ioctl() instead.
  * Otherwise, an error will occur when compiling.
 static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
+	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
 	return 0;
 }
 */
@@ -154,6 +175,7 @@ static struct file_operations interrupt_demo_driver_file_operations = {
 	.read  = interrupt_demo_read, //Read operations, executed when calling read()
 	.write = interrupt_demo_write, //Write operations, executed when calling write()
 	.unlocked_ioctl = interrupt_demo_unlocked_ioctl, //Unlocked IOControl, executed when calling ioctl()
+	//.compact_ioctl = interrupt_demo_compact_ioctl, //Compact IOControl, executed when calling ioctl() from 32-bit user application on 64-bit platform
 	//.ioctl = interrupt_demo_ioctl, //For kernels before 2.6.36, use .ioctl and comment .unlocked_ioctl
 };
 
