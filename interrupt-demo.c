@@ -56,7 +56,7 @@ spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
 
-/* Character Driver related functions */
+/* Character Driver Related Functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
 	//DBGPRINT("Device file opending...\n");
 	return 0;
@@ -145,7 +145,8 @@ static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsign
 	return 0;
 }
 */
- 
+
+/* Pointers to Character Driver Related Functions */
 static struct file_operations interrupt_demo_driver_file_operations = {
 	.owner = THIS_MODULE,
 	.open  = interrupt_demo_open,  //Open device, executed when calling open()
@@ -215,7 +216,7 @@ static irqreturn_t eint16_interrupt(int iIrq, void * lpDevId){
 }
 #endif
 
-/* Platform Device related functions */
+/* Platform Device Related Functions */
 static int interrupt_demo_probe(struct platform_device * lpPlatformDevice){
 	DBGPRINT("Initializing...\n");
 	return 0;
@@ -381,7 +382,7 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 	return;
 }
 
-/* Init & Exit functions */
+/* Init & Exit Functions */
 static void interrupt_demo_setup_cdev(struct cdev * lpCharDevice, int iMinorDeviceNumber, struct file_operations * lpFileOperations){ //Device setup function, called by init()
 	int iError, iDeviceDeviceNumber = MKDEV(iMajorDeviceNumber, iMinorDeviceNumber);
 	cdev_init(lpCharDevice, lpFileOperations); //Initialize cdev
@@ -589,11 +590,11 @@ static void __exit interrupt_demo_exit(void){
 	return;
 }
 
-/* Init function & Exit function */
+/* Pointers to Init & Exit Functions */
 module_init(interrupt_demo_init);
 module_exit(interrupt_demo_exit);
 
-/* Platform Driver Related Functions */
+/* Pointers to Platform Driver Related Functions */
 struct platform_driver interrupt_demo_driver = {
 	.probe = interrupt_demo_probe,
 	.remove = interrupt_demo_remove,
