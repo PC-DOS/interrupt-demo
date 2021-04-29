@@ -593,7 +593,7 @@ static void __exit interrupt_demo_exit(void){
 module_init(interrupt_demo_init);
 module_exit(interrupt_demo_exit);
 
-/* Platform Driver related functions */
+/* Platform Driver Related Functions */
 struct platform_driver interrupt_demo_driver = {
 	.probe = interrupt_demo_probe,
 	.remove = interrupt_demo_remove,
