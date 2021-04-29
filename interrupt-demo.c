@@ -631,5 +631,5 @@ struct platform_driver interrupt_demo_driver = {
 
 /* Licenses, Authors & Descriptions */
 MODULE_LICENSE("Dual BSD/GPL");
-MODULE_AUTHOR("Picsell-Dois@SEU-BME");
+MODULE_AUTHOR("Picsell-Dois@SCP-EQ");
 MODULE_DESCRIPTION("Exynos-4412 interrupt demo driver");
