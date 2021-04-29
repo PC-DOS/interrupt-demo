@@ -420,17 +420,17 @@ static void interrupt_demo_setup_cdev(struct cdev * lpCharDevice, int iMinorDevi
 static int __init interrupt_demo_init(void){
 	NFOPRINT("Initializing...\n");
 	int iResult;
-	dev_t dev = MKDEV(iMajorDeviceNumber, 0);
+	dev_t devDeviceNumber = MKDEV(iMajorDeviceNumber, 0);
 	if (iMajorDeviceNumber){
 		//Static device number
-		iResult = register_chrdev_region(dev, 1, DRIVER_NAME);
+		iResult = register_chrdev_region(devDeviceNumber, 1, DRIVER_NAME);
 		DBGPRINT("register_chrdev_region().\n");
 	}
 	else{
 		//Allocate device number
-		iResult = alloc_chrdev_region(&dev, 0, 1, DRIVER_NAME);
+		iResult = alloc_chrdev_region(&devDeviceNumber, 0, 1, DRIVER_NAME);
 		DBGPRINT("alloc_chrdev_region().\n");
-		iMajorDeviceNumber = MAJOR(dev);
+		iMajorDeviceNumber = MAJOR(devDeviceNumber);
 	}
 	if (iResult < 0){ //Errors occurred
 		WRNPRINT("alloc_chrdev_region() failed.\n");
@@ -587,7 +587,7 @@ static int __init interrupt_demo_init(void){
 		WRNPRINT("failed in creating device class.\n");
 		return 0;
 	}
-	device_create(clsDriver, NULL, dev, NULL, NODE_NAME);
+	device_create(clsDriver, NULL, devDeviceNumber, NULL, NODE_NAME);
 	return 0;
 }
 
