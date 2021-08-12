@@ -3,7 +3,7 @@
 
 #define DRIVER_NAME "interrupt-demo"
 #define DEVICE_NAME "interrupt-demo"
-#define NODE_NAME "interrupt-demo-node"
+#define NODE_NAME "interrupt-demo"
 #define CLASS_NAME "interrupt-demo-class"
 
 #define DATA_BUFFER_SIZE 1000 //Data Buffer (to store data and read) size. For consumer programs (e.g. UserApp), its buffer size is better to be larger than DATA_BUFFER_SIZE. Otherwise, a Segmentation Fault may occur.
