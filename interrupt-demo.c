@@ -1,6 +1,6 @@
 /* Interrupt Demo Driver
  *
- * This is a character driver, which is used to demostrate Exynos-4412's interrupts
+ * This is a character device, which is used to demostrate Exynos-4412's interrupts
  * 
  * We use the following Interrupts:
  * || Private Definition || Pin Definition || INT ID (XEINT) || Label           || Meaning                                                                            ||
@@ -46,9 +46,9 @@
 #include "interrupt-demo.h"
 #include "MathFunctions.h"
 
-struct class *clsDriver; //Device node 
+struct class *clsDevice; //Device node 
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
-static struct cdev cdevDriver; //cdev structure
+static struct cdev cdevDevice; //cdev structure
 
 spinlock_t spnlkDataBufferLocker; //Spin-Lock to protect arrDataBuffer
 spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
@@ -56,7 +56,7 @@ spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
 
-/* Character Driver Related Functions */
+/* Character Device Related Functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
 	//DBGPRINT("Device file opending...\n");
 	return 0;
@@ -167,8 +167,8 @@ static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsign
 }
 */
 
-/* Pointers to Character Driver Related Functions */
-static struct file_operations interrupt_demo_driver_file_operations = {
+/* Pointers to Character Device Related Functions */
+static struct file_operations interrupt_demo_device_file_operations = {
 	.owner = THIS_MODULE,
 	.open  = interrupt_demo_open,  //Open device, executed when calling open()
 	.release = interrupt_demo_release, //Release device, executed when calling close()
@@ -423,12 +423,12 @@ static int __init interrupt_demo_init(void){
 	dev_t devDeviceNumber = MKDEV(iMajorDeviceNumber, 0);
 	if (iMajorDeviceNumber){
 		//Static device number
-		iResult = register_chrdev_region(devDeviceNumber, 1, DRIVER_NAME);
+		iResult = register_chrdev_region(devDeviceNumber, 1, DEVICE_NAME);
 		DBGPRINT("register_chrdev_region().\n");
 	}
 	else{
 		//Allocate device number
-		iResult = alloc_chrdev_region(&devDeviceNumber, 0, 1, DRIVER_NAME);
+		iResult = alloc_chrdev_region(&devDeviceNumber, 0, 1, DEVICE_NAME);
 		DBGPRINT("alloc_chrdev_region().\n");
 		iMajorDeviceNumber = MAJOR(devDeviceNumber);
 	}
@@ -436,7 +436,7 @@ static int __init interrupt_demo_init(void){
 		WRNPRINT("alloc_chrdev_region() failed.\n");
 		return iResult;
 	}
-	interrupt_demo_setup_cdev(&cdevDriver, 0, &interrupt_demo_driver_file_operations);
+	interrupt_demo_setup_cdev(&cdevDevice, 0, &interrupt_demo_device_file_operations);
 	DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
 	//Initialize Spin-Lock
 	spin_lock_init(&spnlkDataBufferLocker);
@@ -582,20 +582,20 @@ static int __init interrupt_demo_init(void){
 	}
 #endif
 	//Create device node
-	clsDriver = class_create(THIS_MODULE, CLASS_NAME);
-	if (IS_ERR(clsDriver)){
+	clsDevice = class_create(THIS_MODULE, CLASS_NAME);
+	if (IS_ERR(clsDevice)){
 		WRNPRINT("failed in creating device class.\n");
 		return 0;
 	}
-	device_create(clsDriver, NULL, devDeviceNumber, NULL, NODE_NAME);
+	device_create(clsDevice, NULL, devDeviceNumber, NULL, NODE_NAME);
 	return 0;
 }
 
 static void __exit interrupt_demo_exit(void){
 	DBGPRINT("Exiting...\n");
-	device_destroy(clsDriver,MKDEV(iMajorDeviceNumber, 0));
-	class_destroy(clsDriver);
-	cdev_del(&cdevDriver);
+	device_destroy(clsDevice,MKDEV(iMajorDeviceNumber, 0));
+	class_destroy(clsDevice);
+	cdev_del(&cdevDevice);
 	unregister_chrdev_region(MKDEV(iMajorDeviceNumber, 0), 1);
 	//Use free_irq() to unregister interrupts here
 	free_irq(S_INT, NULL);
