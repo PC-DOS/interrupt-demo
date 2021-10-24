@@ -51,7 +51,7 @@ struct class *clsDevice; //Device node
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
 static struct cdev cdevDevice; //cdev structure
 
-//Spin-Locks and Data
+//Spin-Locks
 spinlock_t spnlkDataBufferLocker; //Spin-Lock to protect arrDataBuffer
 spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
 
