@@ -46,19 +46,13 @@
 #include "interrupt-demo.h"
 #include "MathFunctions.h"
 
-//Device Data
 struct class *clsDevice; //Device node 
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
 static struct cdev cdevDevice; //cdev structure
 
-//Spin-Locks and Data
 spinlock_t spnlkDataBufferLocker; //Spin-Lock to protect arrDataBuffer
 spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
 
-//Interrupt Flags
-unsigned long iInterruptFlags; //Interrupt flags used to save and restore IRQ Flags in non-interrupt codes
-
-//Data Buffers
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
 
@@ -95,7 +89,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	//DBGPRINT("Reading data from device file...\n");
 	//Sample data reading code
 	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
-	spin_lock_irqsave(&spnlkDataBufferLocker, iInterruptFlags);//Locks arrDataBuffer. For Spin-Locks shared between interrupts and non-interrupts, use spin_lock_irqsave() in non-interrupt codes to avoid deadlocks
+	spin_lock(&spnlkDataBufferLocker); //Locks arrDataBuffer
 	ssize_t iResult;
 	iResult=copy_to_user(lpszBuffer, arrDataBuffer, GetMin(sizeof(arrDataBuffer),iSize));
 	if (iResult){
@@ -105,7 +99,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
-	spin_unlock_irqrestore(&spnlkDataBufferLocker, iInterruptFlags); //Don't forget to unlock me! For Spin-Locks shared between interrupts and non-interrupts, use spin_unlock_irqrestore() in non-interrupt codes to avoid deadlocks
+	spin_unlock(&spnlkDataBufferLocker); //Don't forget to unlock me!
 	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return iResult;
 }
