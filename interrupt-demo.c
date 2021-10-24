@@ -46,13 +46,16 @@
 #include "interrupt-demo.h"
 #include "MathFunctions.h"
 
+//Device Data
 struct class *clsDevice; //Device node 
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
 static struct cdev cdevDevice; //cdev structure
 
+//Spin-Locks and Data
 spinlock_t spnlkDataBufferLocker; //Spin-Lock to protect arrDataBuffer
 spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
 
+//Data Buffers
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
 unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
 
