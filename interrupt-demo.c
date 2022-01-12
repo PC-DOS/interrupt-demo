@@ -52,8 +52,14 @@ static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automati
 static struct cdev cdevDevice; //cdev structure
 
 //Spin-Locks
+#define IS_DATA_BUFFER_SPINLOCK_REQUESTED //Switch of arrDataBuffer Spin-Lock
+#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 spinlock_t spnlkDataBufferLocker; //Spin-Lock to protect arrDataBuffer
+#endif
+#define IS_IOCTL_OPERATION_SPINLOCK_REQUESTED //Switch of IoCtl operations Spin-Lock
+#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
+#endif
 
 //Data Buffers
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
@@ -92,7 +98,9 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	//DBGPRINT("Reading data from device file...\n");
 	//Sample data reading code
 	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
+	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 	spin_lock(&spnlkDataBufferLocker); //Locks arrDataBuffer
+	#endif
 	ssize_t iResult;
 	iResult=copy_to_user(lpszBuffer, arrDataBuffer, GetMin(sizeof(arrDataBuffer),iSize));
 	if (iResult){
@@ -102,7 +110,9 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
+	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkDataBufferLocker); //Don't forget to unlock me!
+	#endif
 	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return iResult;
 }
@@ -116,18 +126,22 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
  */
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
 	DBGPRINT("Wrtiting data to device file...\n");
-	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
 	ssize_t iResult;
 	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, GetMin(CTL_COMMAND_BUFFER_SIZE,iSize));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to kernel RAM space.\n", iResult);
 		return iResult;
 	}
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	#endif
 	unsigned int iIoControlCommand = arrCommandBuffer[0];
 	unsigned long lpIoControlParameters = arrCommandBuffer[1];
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	#endif
 	return iResult;
 }
  
@@ -137,9 +151,13 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
  */
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	#endif
 	return 0;
 }
 
@@ -150,9 +168,13 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
  * compact_ioctl is designed for 64-bit drivers to process 32-bit user application's ioctl() calls. This driver is currently designed for ARM32 (AArch32) platform.
 static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	#endif
 	return 0;
 }
 */
@@ -163,9 +185,13 @@ static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoC
  * Otherwise, an error will occur when compiling.
 static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	#endif
 	return 0;
 }
 */
@@ -188,12 +214,16 @@ static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
 	//DBGPRINT("Interrupt Handler: Interrupt %s, handler %s, at line %d.\n", XEINT1_NAME, __FUNCTION__, __LINE__);
 	disable_irq_nosync(S_INT); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
 	//Sample data generation code
+	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 	spin_lock(&spnlkDataBufferLocker); //Locks arrDataBuffer
+	#endif
 	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
+	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkDataBufferLocker); //Don't forget to unlock me!
+	#endif
 	enable_irq(S_INT); //enable_irq() before returning
 	return IRQ_HANDLED;
 }
@@ -442,8 +472,12 @@ static int __init interrupt_demo_init(void){
 	interrupt_demo_setup_cdev(&cdevDevice, 0, &interrupt_demo_device_file_operations);
 	DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
 	//Initialize Spin-Lock
+	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 	spin_lock_init(&spnlkDataBufferLocker);
+	#endif
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock_init(&spnlkIoCtlLocker);
+	#endif
 	//Use request_irq() to register interrupts here
 	int iIrqResult;
 	//Request interrupt S_INT/XEINT1_BAK, Interrupt ID XEINT1, Label EXYNOS4_GPX0(1)
