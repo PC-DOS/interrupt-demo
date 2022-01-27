@@ -54,11 +54,11 @@ static struct cdev cdevDevice; //cdev structure
 //Spin-Locks
 #define IS_DATA_BUFFER_SPINLOCK_REQUESTED //Switch of arrDataBuffer Spin-Lock
 #ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
-spinlock_t spnlkDataBufferLocker; //Spin-Lock to protect arrDataBuffer
+rwlock_t rwlkDataBufferLock; //Spin-Lock to protect arrDataBuffer, use Read-Write-Lock to improve concurrency performance
 #endif
 #define IS_IOCTL_OPERATION_SPINLOCK_REQUESTED //Switch of IoCtl operations Spin-Lock
 #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-spinlock_t spnlkIoCtlLocker; //Spin-Lock to protect IoCtl operations
+spinlock_t spnlkIoCtlLock; //Spin-Lock to protect IoCtl operations
 #endif
 
 //Data Buffers
@@ -99,7 +99,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 	//Sample data reading code
 	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
 	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
-	spin_lock(&spnlkDataBufferLocker); //Locks arrDataBuffer
+	read_lock(&rwlkDataBufferLock); //Begin reading, locks arrDataBuffer
 	#endif
 	ssize_t iResult;
 	iResult=copy_to_user(lpszBuffer, arrDataBuffer, GetMin(sizeof(arrDataBuffer),iSize));
@@ -111,7 +111,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
 	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
-	spin_unlock(&spnlkDataBufferLocker); //Don't forget to unlock me!
+	read_unlock(&rwlkDataBufferLock); //Don't forget to unlock me!
 	#endif
 	enable_irq(S_INT); //Enable S_INT (XEINT1)
 	return iResult;
@@ -133,14 +133,14 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
 		return iResult;
 	}
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	unsigned int iIoControlCommand = arrCommandBuffer[0];
 	unsigned long lpIoControlParameters = arrCommandBuffer[1];
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return iResult;
 }
@@ -152,11 +152,11 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
 }
@@ -169,11 +169,11 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
 static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
 }
@@ -186,11 +186,11 @@ static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoC
 static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_lock(&spnlkIoCtlLocker); //Locks IoCtl operations
+	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_unlock(&spnlkIoCtlLocker); //Don't forget to unlock me!
+	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
 }
@@ -215,14 +215,14 @@ static irqreturn_t eint1_interrupt(int iIrq, void * lpDevId){
 	disable_irq_nosync(S_INT); //Use disable_irq_nosync() in Interrupt Handlers. Use disable_irq() in normal functions
 	//Sample data generation code
 	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
-	spin_lock(&spnlkDataBufferLocker); //Locks arrDataBuffer
+	write_lock(&rwlkDataBufferLock); //Begin writing, locks arrDataBuffer
 	#endif
 	int i;
 	for (i=0; i<DATA_BUFFER_SIZE; ++i){
 		arrDataBuffer[i]=arrDataDef[i] + random32() % DATA_MAX_VALUE;
 	}
 	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
-	spin_unlock(&spnlkDataBufferLocker); //Don't forget to unlock me!
+	write_unlock(&rwlkDataBufferLock); //Don't forget to unlock me!
 	#endif
 	enable_irq(S_INT); //enable_irq() before returning
 	return IRQ_HANDLED;
@@ -473,10 +473,10 @@ static int __init interrupt_demo_init(void){
 	DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
 	//Initialize Spin-Lock
 	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
-	spin_lock_init(&spnlkDataBufferLocker);
+	rwlock_init(&rwlkDataBufferLock);
 	#endif
 	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-	spin_lock_init(&spnlkIoCtlLocker);
+	spin_lock_init(&spnlkIoCtlLock);
 	#endif
 	//Use request_irq() to register interrupts here
 	int iIrqResult;
