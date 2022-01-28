@@ -112,8 +112,8 @@
 #define MASK_EINT1_IRQ		0x0
 #define UNMASK_EINT1_IRQ	0x1
 #define SET_USER_PID		0x2
-#define SET_DCTL_CMD_H			0x3  //Delay Control - High Byte
-#define SET_DCTL_CMD_L			0x4  //Delay Control - Low Byte
+#define SET_DCTL_H			0x3  //Delay Control - High Byte
+#define SET_DCTL_L			0x4  //Delay Control - Low Byte
 #define SET_RTCL_L			0x5  //Rate Control
 #define SET_COMP_H			0x6  //Compress Rate (Scale) - High Byte
 #define SET_COMP_L			0x7  //Compress Rate (Scale) - Low Byte
