@@ -1,15 +1,18 @@
 #ifndef _INTERRUPT_DEMO_H
 #define _INTERRUPT_DEMO_H
 
+/* Name Strings */
 #define DRIVER_NAME "interrupt-demo"
 #define DEVICE_NAME "interrupt-demo"
 #define NODE_NAME "interrupt-demo"
 #define CLASS_NAME "interrupt-demo-class"
 
+/* Data Buffer Definitions */
 #define DATA_BUFFER_SIZE 1000 //Data Buffer (to store data and read) size. For consumer programs (e.g. UserApp), its buffer size is better to be larger than DATA_BUFFER_SIZE. Otherwise, a Segmentation Fault may occur.
 #define DATA_MAX_VALUE 10 //Max data value
-#define CTL_COMMAND_BUFFER_SIZE 2 //Command Buffer (for write() function) size
+#define CONTROL_COMMAND_BUFFER_SIZE 2 //Command Buffer (for write() function) size
 
+/* Information Printing Functions */
 //DBGPRINT() is used to print debug messages, comment #define IS_IN_DEBUG to disable them
 #define IS_IN_DEBUG
 #ifdef IS_IN_DEBUG
@@ -22,7 +25,7 @@
 #define WRNPRINT(sInfo...) printk(KERN_WARNING "InterruptDemo - Warning: " sInfo)
 #define ERRPRINT(sInfo...) printk(KERN_ERR "InterruptDemo - Error: " sInfo)
 
-//Interrupt Names
+/* Interrupt Names */
 #define IS_GPIO_INTERRUPT_DEBUG //Comment this when using GPIO keypad
 #define XEINT1_NAME "S_INT__XEINT1_BAK__XEINT1"
 #define XEINT20_NAME "DP_INT__XEINT20_BAK__XEINT20"
@@ -36,7 +39,7 @@
 #define XEINT16_NAME "KEY_VOL-__KP_ROW0__XEINT16"
 #endif
 
-//Interrupt IDs and Labels
+/* Interrupt IDs and Labels */
 //S_INT__XEINT1_BAK__XEINT1
 #define		S_INT				IRQ_EINT(1)
 #define		XEINT1_BAK			IRQ_EINT(1)
@@ -103,13 +106,14 @@
 #define		XEINT16_LABEL		EXYNOS4_GPX2(0)
 #endif
 
-//Control Commands
+/* Control Commands */
+//Control commands are defined in CTL_CMD_ format
 /* Original command defines in old Driver source code
 #define MASK_EINT1_IRQ		0x0
 #define UNMASK_EINT1_IRQ	0x1
 #define SET_USER_PID		0x2
-#define SET_DCTL_H			0x3  //Delay Control - High Byte
-#define SET_DCTL_L			0x4  //Delay Control - Low Byte
+#define SET_DCTL_CMD_H			0x3  //Delay Control - High Byte
+#define SET_DCTL_CMD_L			0x4  //Delay Control - Low Byte
 #define SET_RTCL_L			0x5  //Rate Control
 #define SET_COMP_H			0x6  //Compress Rate (Scale) - High Byte
 #define SET_COMP_L			0x7  //Compress Rate (Scale) - Low Byte
@@ -125,38 +129,39 @@
 #define SET_VAR_1C			0x1c
 #define SET_VAR_1E			0x1e
 */
-#define CTL_DISABLE_IRQ							0x00 //Disable IRQ
-#define CTL_ENABLE_IRQ							0x01 //Enable IRQ
-#define CTL_SET_USER_APP_PID					0x02 //Set the PID (Process ID) of user app
-#define CTL_SET_DELAY_HIGH_BYTE					0x03 //Set Delay (High Byte)
-#define CTL_SET_DELAY_LOW_BYTE					0x04 //Set Delay (Low Byte)
-#define CTL_SET_RATE							0x05 //Set Rate
-#define CTL_SET_COMPRESS_COUNT_HIGH_BYTE		0x06 //Set Compress Count (How many points are merged), High Byte
-#define CTL_SET_COMPRESS_COUNT_LOW_BYTE			0x07 //Set Compress Count (How many points are merged), Low Byte
-#define CTL_SET_COMPRESS_STEP_INT_PART			0x08 //Set Compress Step's integer part
-#define CTL_SET_COMPRESS_STEP_FLOAT_PART		0x09 //Set Compress Step's decimal part
-#define CTL_SET_GAIN							0x0a //Set Gain
-#define CTL_SET_CHANNEL							0x0c //Set Channel
-#define CTL_RESERVED_12							0x12 //Reserved
-#define CTL_RESERVED_14							0x14 //Reserved
-#define CTL_RESERVED_16							0x16 //Reserved
-#define CTL_RESERVED_18							0x18 //Reserved
-#define CTL_RESERVED_1A							0x1a //Reserved
-#define CTL_RESERVED_1C							0x1c //Reserved
-#define CTL_RESERVED_1E							0x1e //Reserved
+#define CTL_CMD_DISABLE_IRQ							0x00 //Disable IRQ
+#define CTL_CMD_ENABLE_IRQ							0x01 //Enable IRQ
+#define CTL_CMD_SET_USER_APP_PID					0x02 //Set the PID (Process ID) of user app
+#define CTL_CMD_SET_DELAY_HIGH_BYTE					0x03 //Set Delay (High Byte)
+#define CTL_CMD_SET_DELAY_LOW_BYTE					0x04 //Set Delay (Low Byte)
+#define CTL_CMD_SET_RATE							0x05 //Set Rate
+#define CTL_CMD_SET_COMPRESS_COUNT_HIGH_BYTE		0x06 //Set Compress Count (How many points are merged), High Byte
+#define CTL_CMD_SET_COMPRESS_COUNT_LOW_BYTE			0x07 //Set Compress Count (How many points are merged), Low Byte
+#define CTL_CMD_SET_COMPRESS_STEP_INT_PART			0x08 //Set Compress Step's integer part
+#define CTL_CMD_SET_COMPRESS_STEP_FLOAT_PART		0x09 //Set Compress Step's decimal part
+#define CTL_CMD_SET_GAIN							0x0a //Set Gain
+#define CTL_CMD_SET_CHANNEL							0x0c //Set Channel
+#define CTL_CMD_RESERVED_12							0x12 //Reserved
+#define CTL_CMD_RESERVED_14							0x14 //Reserved
+#define CTL_CMD_RESERVED_16							0x16 //Reserved
+#define CTL_CMD_RESERVED_18							0x18 //Reserved
+#define CTL_CMD_RESERVED_1A							0x1a //Reserved
+#define CTL_CMD_RESERVED_1C							0x1c //Reserved
+#define CTL_CMD_RESERVED_1E							0x1e //Reserved
 
-//Interrupt Names for CTL_XXXX_IRQ Commands
-#define CTL_IRQ_NAME_NULL			0x00
-#define CTL_IRQ_NAME_S_INT			0x01
-#define CTL_IRQ_NAME_DP_INT			0x02
-#define CTL_IRQ_NAME_PW_INT			0x03
-#define CTL_IRQ_NAME_DAC_INT		0x04
+/* Control Arguments */
+//Arguments are defined in CTL_ARG_ format
+#define CTL_ARG_IRQ_NAME_NULL			0x00
+#define CTL_ARG_IRQ_NAME_S_INT			0x01
+#define CTL_ARG_IRQ_NAME_DP_INT			0x02
+#define CTL_ARG_IRQ_NAME_PW_INT			0x03
+#define CTL_ARG_IRQ_NAME_DAC_INT		0x04
 #ifdef IS_GPIO_INTERRUPT_DEBUG
-#define CTL_IRQ_NAME_KEY_HOME		0x11
-#define CTL_IRQ_NAME_KEY_BACK		0x12
-#define CTL_IRQ_NAME_KEY_SLEEP		0x13
-#define CTL_IRQ_NAME_KEY_VOLUP		0x14
-#define CTL_IRQ_NAME_KEY_VOLDOWN	0x15
+#define CTL_ARG_IRQ_NAME_KEY_HOME		0x11
+#define CTL_ARG_IRQ_NAME_KEY_BACK		0x12
+#define CTL_ARG_IRQ_NAME_KEY_SLEEP		0x13
+#define CTL_ARG_IRQ_NAME_KEY_VOLUP		0x14
+#define CTL_ARG_IRQ_NAME_KEY_VOLDOWN	0x15
 #endif
 
 //Function Signatures

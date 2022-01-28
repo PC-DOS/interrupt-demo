@@ -56,14 +56,14 @@ static struct cdev cdevDevice; //cdev structure
 #ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 rwlock_t rwlkDataBufferLock; //Spin-Lock to protect arrDataBuffer, use Read-Write-Lock to improve concurrency performance
 #endif
-#define IS_IOCTL_OPERATION_SPINLOCK_REQUESTED //Switch of IoCtl operations Spin-Lock
-#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+#define IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED //Switch of IoCtl operations Spin-Lock
+#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 spinlock_t spnlkIoCtlLock; //Spin-Lock to protect IoCtl operations
 #endif
 
 //Data Buffers
 unsigned int arrDataBuffer[DATA_BUFFER_SIZE]={0};
-unsigned char arrCommandBuffer[CTL_COMMAND_BUFFER_SIZE]={0};
+unsigned char arrCommandBuffer[CONTROL_COMMAND_BUFFER_SIZE]={0};
 
 /* Character Device Related Functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile){
@@ -127,19 +127,19 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize, loff_t * lpOffset){
 	DBGPRINT("Wrtiting data to device file...\n");
 	ssize_t iResult;
-	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, GetMin(CTL_COMMAND_BUFFER_SIZE,iSize));
+	iResult=copy_from_user(arrCommandBuffer, lpszBuffer, GetMin(CONTROL_COMMAND_BUFFER_SIZE,iSize));
 	if (iResult){
 		WRNPRINT("Failed to copy %ld Bytes of data to kernel RAM space.\n", iResult);
 		return iResult;
 	}
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	unsigned int iIoControlCommand = arrCommandBuffer[0];
 	unsigned long lpIoControlParameters = arrCommandBuffer[1];
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return iResult;
@@ -151,11 +151,11 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
  */
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
@@ -168,11 +168,11 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
  * compact_ioctl is designed for 64-bit drivers to process 32-bit user application's ioctl() calls. This driver is currently designed for ARM32 (AArch32) platform.
 static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
@@ -185,11 +185,11 @@ static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoC
  * Otherwise, an error will occur when compiling.
 static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
@@ -301,44 +301,44 @@ static int interrupt_demo_resume(struct platform_device * lpPlatformDevice){
 void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoControlParameters){
 	disable_irq(S_INT); //Disable S_INT (XEINT1) to avoid unwanted DataBuffer refresh
 	switch (iIoControlCommand){
-		case CTL_DISABLE_IRQ:
+		case CTL_CMD_DISABLE_IRQ:
 			switch (lpIoControlParameters){
-				case CTL_IRQ_NAME_NULL:
+				case CTL_ARG_IRQ_NAME_NULL:
 					break;
-				case CTL_IRQ_NAME_S_INT:
+				case CTL_ARG_IRQ_NAME_S_INT:
 					DBGPRINT("Disabling IRQ: S_INT.\n");
 					disable_irq(S_INT);
 					break;
-				case CTL_IRQ_NAME_DP_INT:
+				case CTL_ARG_IRQ_NAME_DP_INT:
 					DBGPRINT("Disabling IRQ: DP_INT.\n");
 					disable_irq(DP_INT);
 					break;
-				case CTL_IRQ_NAME_PW_INT:
+				case CTL_ARG_IRQ_NAME_PW_INT:
 					DBGPRINT("Disabling IRQ: PW_INT.\n");
 					disable_irq(PW_INT);
 					break;
-				case CTL_IRQ_NAME_DAC_INT:
+				case CTL_ARG_IRQ_NAME_DAC_INT:
 					DBGPRINT("Disabling IRQ: DAC_INT.\n");
 					disable_irq(DAC_INT);
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
-				case CTL_IRQ_NAME_KEY_HOME:
+				case CTL_ARG_IRQ_NAME_KEY_HOME:
 					DBGPRINT("Disabling IRQ: KEY_HOME.\n");
 					disable_irq(KEY_HOME);
 					break;
-				case CTL_IRQ_NAME_KEY_BACK:
+				case CTL_ARG_IRQ_NAME_KEY_BACK:
 					DBGPRINT("Disabling IRQ: KEY_BACK.\n");
 					disable_irq(KEY_BACK);
 					break;
-				case CTL_IRQ_NAME_KEY_SLEEP:
+				case CTL_ARG_IRQ_NAME_KEY_SLEEP:
 					DBGPRINT("Disabling IRQ: KEY_SLEEP.\n");
 					disable_irq(KEY_SLEEP);
 					break;
-				case CTL_IRQ_NAME_KEY_VOLUP:
+				case CTL_ARG_IRQ_NAME_KEY_VOLUP:
 					DBGPRINT("Disabling IRQ: KEY_VOLUP.\n");
 					disable_irq(KEY_VOLUP);
 					break;
-				case CTL_IRQ_NAME_KEY_VOLDOWN:
+				case CTL_ARG_IRQ_NAME_KEY_VOLDOWN:
 					DBGPRINT("Disabling IRQ: KEY_VOLDOWN.\n");
 					disable_irq(KEY_VOLDOWN);
 					break;
@@ -350,44 +350,44 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 					break;
 			}
 			break;
-		case CTL_ENABLE_IRQ:
+		case CTL_CMD_ENABLE_IRQ:
 			switch (lpIoControlParameters){
-				case CTL_IRQ_NAME_NULL:
+				case CTL_ARG_IRQ_NAME_NULL:
 					break;
-				case CTL_IRQ_NAME_S_INT:
+				case CTL_ARG_IRQ_NAME_S_INT:
 					DBGPRINT("Enabling IRQ: S_INT.\n");
 					enable_irq(S_INT);
 					break;
-				case CTL_IRQ_NAME_DP_INT:
+				case CTL_ARG_IRQ_NAME_DP_INT:
 					DBGPRINT("Enabling IRQ: DP_INT.\n");
 					enable_irq(DP_INT);
 					break;
-				case CTL_IRQ_NAME_PW_INT:
+				case CTL_ARG_IRQ_NAME_PW_INT:
 					DBGPRINT("Enabling IRQ: PW_INT.\n");
 					enable_irq(PW_INT);
 					break;
-				case CTL_IRQ_NAME_DAC_INT:
+				case CTL_ARG_IRQ_NAME_DAC_INT:
 					DBGPRINT("Enabling IRQ: DAC_INT.\n");
 					enable_irq(DAC_INT);
 					break;
 #ifdef IS_GPIO_INTERRUPT_DEBUG
-				case CTL_IRQ_NAME_KEY_HOME:
+				case CTL_ARG_IRQ_NAME_KEY_HOME:
 					DBGPRINT("Enabling IRQ: KEY_HOME.\n");
 					enable_irq(KEY_HOME);
 					break;
-				case CTL_IRQ_NAME_KEY_BACK:
+				case CTL_ARG_IRQ_NAME_KEY_BACK:
 					DBGPRINT("Enabling IRQ: KEY_BACK.\n");
 					enable_irq(KEY_BACK);
 					break;
-				case CTL_IRQ_NAME_KEY_SLEEP:
+				case CTL_ARG_IRQ_NAME_KEY_SLEEP:
 					DBGPRINT("Enabling IRQ: KEY_SLEEP.\n");
 					enable_irq(KEY_SLEEP);
 					break;
-				case CTL_IRQ_NAME_KEY_VOLUP:
+				case CTL_ARG_IRQ_NAME_KEY_VOLUP:
 					DBGPRINT("Enabling IRQ: KEY_VOLUP.\n");
 					enable_irq(KEY_VOLUP);
 					break;
-				case CTL_IRQ_NAME_KEY_VOLDOWN:
+				case CTL_ARG_IRQ_NAME_KEY_VOLDOWN:
 					DBGPRINT("Enabling IRQ: KEY_VOLDOWN.\n");
 					enable_irq(KEY_VOLDOWN);
 					break;
@@ -399,34 +399,34 @@ void ProcessIoControlCommand(unsigned int iIoControlCommand, unsigned long lpIoC
 					break;
 			}
 			break;
-		case CTL_SET_USER_APP_PID:
+		case CTL_CMD_SET_USER_APP_PID:
 			
 			break;
-		case CTL_SET_DELAY_HIGH_BYTE:
+		case CTL_CMD_SET_DELAY_HIGH_BYTE:
 			
 			break;
-		case CTL_SET_DELAY_LOW_BYTE:
+		case CTL_CMD_SET_DELAY_LOW_BYTE:
 			
 			break;
-		case CTL_SET_RATE:
+		case CTL_CMD_SET_RATE:
 			
 			break;
-		case CTL_SET_COMPRESS_COUNT_HIGH_BYTE:
+		case CTL_CMD_SET_COMPRESS_COUNT_HIGH_BYTE:
 			
 			break;
-		case CTL_SET_COMPRESS_COUNT_LOW_BYTE:
+		case CTL_CMD_SET_COMPRESS_COUNT_LOW_BYTE:
 			
 			break;
-		case CTL_SET_COMPRESS_STEP_INT_PART:
+		case CTL_CMD_SET_COMPRESS_STEP_INT_PART:
 			
 			break;
-		case CTL_SET_COMPRESS_STEP_FLOAT_PART:
+		case CTL_CMD_SET_COMPRESS_STEP_FLOAT_PART:
 			
 			break;
-		case CTL_SET_GAIN:
+		case CTL_CMD_SET_GAIN:
 			
 			break;
-		case CTL_SET_CHANNEL:
+		case CTL_CMD_SET_CHANNEL:
 			
 			break;
 		default:
@@ -475,7 +475,7 @@ static int __init interrupt_demo_init(void){
 	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 	rwlock_init(&rwlkDataBufferLock);
 	#endif
-	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
 	spin_lock_init(&spnlkIoCtlLock);
 	#endif
 	//Use request_irq() to register interrupts here
