@@ -56,8 +56,8 @@ static struct cdev cdevDevice; //cdev structure
 #ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 rwlock_t rwlkDataBufferLock; //Spin-Lock to protect arrDataBuffer, use Read-Write-Lock to improve concurrency performance
 #endif
-#define IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED //Switch of IoCtl operations Spin-Lock
-#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+#define IS_IOCTL_OPERATION_SPINLOCK_REQUESTED //Switch of IoCtl operations Spin-Lock
+#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 spinlock_t spnlkIoCtlLock; //Spin-Lock to protect IoCtl operations
 #endif
 
@@ -132,14 +132,14 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
 		WRNPRINT("Failed to copy %ld Bytes of data to kernel RAM space.\n", iResult);
 		return iResult;
 	}
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	unsigned int iIoControlCommand = arrCommandBuffer[0];
 	unsigned long lpIoControlParameters = arrCommandBuffer[1];
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return iResult;
@@ -151,11 +151,11 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
  */
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
@@ -168,11 +168,11 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
  * compact_ioctl is designed for 64-bit drivers to process 32-bit user application's ioctl() calls. This driver is currently designed for ARM32 (AArch32) platform.
 static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
@@ -185,11 +185,11 @@ static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoC
  * Otherwise, an error will occur when compiling.
 static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
 	DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
 	#endif
 	ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
 	#endif
 	return 0;
@@ -475,7 +475,7 @@ static int __init interrupt_demo_init(void){
 	#ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
 	rwlock_init(&rwlkDataBufferLock);
 	#endif
-	#ifdef IS_IOCTL_CMD_OPERATION_SPINLOCK_REQUESTED
+	#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
 	spin_lock_init(&spnlkIoCtlLock);
 	#endif
 	//Use request_irq() to register interrupts here
