@@ -47,18 +47,18 @@
 #include "MathFunctions.h"
 
 //Device Data
-struct class *clsDevice; //Device node 
+static struct class *clsDevice; //Device node 
 static int iMajorDeviceNumber = 0; //Set to 0 to allocate device number automatically
 static struct cdev cdevDevice; //cdev structure
 
 //Spin-Locks
 #define IS_DATA_BUFFER_SPINLOCK_REQUESTED //Switch of arrDataBuffer Spin-Lock
 #ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
-rwlock_t rwlkDataBufferLock; //Spin-Lock to protect arrDataBuffer, use Read-Write-Lock to improve concurrency performance
+static rwlock_t rwlkDataBufferLock; //Spin-Lock to protect arrDataBuffer, use Read-Write-Lock to improve concurrency performance
 #endif
 #define IS_IOCTL_OPERATION_SPINLOCK_REQUESTED //Switch of IoCtl operations Spin-Lock
 #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
-spinlock_t spnlkIoCtlLock; //Spin-Lock to protect IoCtl operations
+static spinlock_t spnlkIoCtlLock; //Spin-Lock to protect IoCtl operations
 #endif
 
 //Data Buffers
@@ -654,7 +654,7 @@ module_init(interrupt_demo_init);
 module_exit(interrupt_demo_exit);
 
 /* Pointers to Platform Driver Related Functions */
-struct platform_driver interrupt_demo_driver = {
+static struct platform_driver interrupt_demo_driver = {
 	.probe = interrupt_demo_probe,
 	.remove = interrupt_demo_remove,
 	.shutdown = interrupt_demo_shutdown,
