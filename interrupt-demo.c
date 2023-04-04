@@ -663,7 +663,8 @@ static struct platform_driver interrupt_demo_driver = {
     .driver = {
         .name = DRIVER_NAME
         //.owner = THIS_MODULE
-    }};
+    }
+};
 
 /* Licenses, Authors & Descriptions */
 MODULE_LICENSE("Dual BSD/GPL");
