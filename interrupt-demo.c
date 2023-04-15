@@ -106,10 +106,6 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
     if (iResult) {
         WRNPRINT("Failed to copy %ld Bytes of data to user RAM space.\n", iResult);
     }
-    int i;
-    for (i = 0; i < DATA_BUFFER_SIZE; ++i) {
-        arrDataBuffer[i] = arrDataDef[i] + random32() % DATA_MAX_VALUE;
-    }
 #ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
     read_unlock(&rwlkDataBufferLock); //Don't forget to unlock me!
 #endif
