@@ -471,11 +471,12 @@ static int __init interrupt_demo_init(void) {
     }
     interrupt_demo_setup_cdev(&cdevDevice, 0, &interrupt_demo_device_file_operations);
     DBGPRINT("The major device number of this device is %d.\n", iMajorDeviceNumber);
-    //Initialize Spin-Lock
 #ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
+    //Initialize Read-Write-Lock for arrDataBuffer
     rwlock_init(&rwlkDataBufferLock);
 #endif
 #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+    //Initialize Spin-Lock for IO Control
     spin_lock_init(&spnlkIoCtlLock);
 #endif
     //Use request_irq() to register interrupts here
