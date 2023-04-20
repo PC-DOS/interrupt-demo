@@ -94,6 +94,7 @@ static int interrupt_demo_release(struct inode * lpNode, struct file * lpFile) {
  *      arrData[i]=(int(chrData[i*4])) + (int(chrData[i*4+1])<<8) + (int(chrData[i*4+2])<<16) + (int(chrData[i*4+3])<<24);
  * }
  * [[/code]]
+ * 
  */
 ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size_t iSize, loff_t * lpOffset) {
     //DBGPRINT("Reading data from device file...\n");
@@ -121,6 +122,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
  * Array arrCommandBuffer has 2 unsigned char (Byte) spaces:
  * The first one (arrCommandBuffer[0]) contains commands (iIoControlCommand);
  * The second one (arrCommandBuffer[1]) contains arguments (lpIoControlParameters);
+ * 
  */
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize, loff_t * lpOffset) {
     DBGPRINT("Wrtiting data to device file...\n");
@@ -147,6 +149,7 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
  * interrupt_demo_unlocked_ioctl() Function
  * 
  * This function processes IO control commands and parameters.
+ * 
  */
 static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters) {
     DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
@@ -165,6 +168,7 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
  * 
  * This function processes IO control commands and parameters.
  * compact_ioctl is designed for 64-bit drivers to process 32-bit user application's ioctl() calls. This driver is currently designed for ARM32 (AArch32) platform.
+ * 
 static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
     DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
     #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
@@ -182,6 +186,7 @@ static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoC
  * 
  * In newer kernels, use unlocked_ioctl() instead.
  * Otherwise, an error will occur when compiling.
+ * 
 static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
     DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
     #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
