@@ -76,7 +76,8 @@ static int interrupt_demo_release(struct inode * lpNode, struct file * lpFile) {
     return 0;
 }
 
-/* interrupt_demo_read() Function
+/* 
+ * interrupt_demo_read() Function
  *
  * This function copies arrDataBuffer to user RAM space.
  * The user space data buffer is an array, whose data type is char (Byte).
@@ -113,7 +114,8 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
     return iResult;
 }
 
-/* interrupt_demo_write() Function
+/* 
+ * interrupt_demo_write() Function
  *
  * This function copies IO control commands from user RAM space to kernel RAM space (arrCommandBuffer).
  * Array arrCommandBuffer has 2 unsigned char (Byte) spaces:
@@ -141,7 +143,8 @@ ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffe
     return iResult;
 }
 
-/* interrupt_demo_unlocked_ioctl()
+/* 
+ * interrupt_demo_unlocked_ioctl() Function
  * 
  * This function processes IO control commands and parameters.
  */
@@ -158,7 +161,7 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
 }
 
 /*
-/* interrupt_demo_compact_ioctl()
+ * interrupt_demo_compact_ioctl() Function
  * 
  * This function processes IO control commands and parameters.
  * compact_ioctl is designed for 64-bit drivers to process 32-bit user application's ioctl() calls. This driver is currently designed for ARM32 (AArch32) platform.
