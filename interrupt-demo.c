@@ -171,13 +171,13 @@ static long interrupt_demo_unlocked_ioctl(struct file * lpFile, unsigned int iIo
  * 
 static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
     DBGPRINT("Unlocked IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
-    #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
     spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
-    #endif
+#endif
     ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-    #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
     spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
-    #endif
+#endif
     return 0;
 }
 */
@@ -189,13 +189,13 @@ static long interrupt_demo_compact_ioctl(struct file * lpFile, unsigned int iIoC
  * 
 static int interrupt_demo_ioctl(struct inode * lpNode, struct file *file, unsigned int iIoControlCommand, unsigned long lpIoControlParameters){  
     DBGPRINT("IOControl command %u with argument %lu received.\n", iIoControlCommand, lpIoControlParameters);
-    #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
     spin_lock(&spnlkIoCtlLock); //Locks IoCtl operations
-    #endif
+#endif
     ProcessIoControlCommand(iIoControlCommand, lpIoControlParameters);
-    #ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
+#ifdef IS_IOCTL_OPERATION_SPINLOCK_REQUESTED
     spin_unlock(&spnlkIoCtlLock); //Don't forget to unlock me!
-    #endif
+#endif
     return 0;
 }
 */
