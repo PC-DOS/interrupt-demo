@@ -67,7 +67,7 @@ unsigned char arrCommandBuffer[CONTROL_COMMAND_BUFFER_SIZE] = {0};
 
 /* Character Device Related Functions */
 int interrupt_demo_open(struct inode * lpNode, struct file * lpFile) {
-    //DBGPRINT("Device file opending...\n");
+    //DBGPRINT("Device file opening...\n");
     return 0;
 }
 
