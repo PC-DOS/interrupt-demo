@@ -125,7 +125,7 @@ ssize_t interrupt_demo_read(struct file * lpFile, char __user * lpszBuffer, size
  * 
  */
 ssize_t interrupt_demo_write(struct file * lpFile, const char __user * lpszBuffer, size_t iSize, loff_t * lpOffset) {
-    DBGPRINT("Wrtiting data to device file...\n");
+    DBGPRINT("Writing data to device file...\n");
     ssize_t iResult;
     iResult = copy_from_user(arrCommandBuffer, lpszBuffer, GetMin(CONTROL_COMMAND_BUFFER_SIZE, iSize));
     if (iResult) {
