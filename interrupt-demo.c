@@ -222,7 +222,7 @@ static irqreturn_t s_int_interrupt(int iIrq, void * lpDevId) {
     write_lock(&rwlkDataBufferLock); //Begin writing, locks arrDataBuffer
 #endif
     int i;
-    for (i = 0; i < DATA_BUFFER_SIZE; ++i) {
+    for (i = 0; i < DATA_BUFFER_WAVE_DATA_SIZE; ++i) {
         arrDataBuffer[i] = arrDataDef[i] + random32() % DATA_MAX_VALUE;
     }
 #ifdef IS_DATA_BUFFER_SPINLOCK_REQUESTED
