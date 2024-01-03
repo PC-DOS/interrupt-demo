@@ -9,10 +9,10 @@
 
 /* Data Buffer Definitions */
 //Structure of Data Buffer:
-//[Wave(0)][Wave(1)]...[Wave(DATA_BUFFER_WAVE_DATA_SIZE - 1)][ExtData(0)][ExtData(1)]...[ExtData(DATA_BUFFER_EXT_DATA_SIZE - 1)]
+//[Wave(0)][Wave(1)]...[Wave(DATA_BUFFER_WAVE_DATA_SIZE - 1)][ExtData(0)][ExtData(1)]...[ExtData(DATA_BUFFER_EXTRA_DATA_SIZE - 1)]
 #define DATA_BUFFER_WAVE_DATA_SIZE  520 //Size of wave data zone of Data Buffer
-#define DATA_BUFFER_EXT_DATA_SIZE   0 //Size of extra data (non-wave data) of Data Buffer
-#define DATA_BUFFER_SIZE            (DATA_BUFFER_WAVE_DATA_SIZE + DATA_BUFFER_EXT_DATA_SIZE) //Data Buffer (to store data and read) size. For consumer programs (e.g. UserApp), its buffer size is better to be the same as DATA_BUFFER_SIZE. Otherwise, a Segmentation Fault may occur.
+#define DATA_BUFFER_EXTRA_DATA_SIZE 0 //Size of extra data (non-wave data) of Data Buffer
+#define DATA_BUFFER_SIZE            (DATA_BUFFER_WAVE_DATA_SIZE + DATA_BUFFER_EXTRA_DATA_SIZE) //Data Buffer (to store data and read) size. For consumer programs (e.g. UserApp), its buffer size is better to be the same as DATA_BUFFER_SIZE. Otherwise, a Segmentation Fault may occur.
 #define DATA_MAX_VALUE              10 //Max data value
 #define CONTROL_COMMAND_BUFFER_SIZE 2 //Command Buffer (for write() function) size
 
